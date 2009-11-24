@@ -14,17 +14,15 @@
  * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
  * or via info@compiere.org or http://www.compiere.org/license.html           *
  *****************************************************************************/
-package org.adempiere.model;
+package org.compiere.model;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-
-import org.compiere.model.MTable;
 import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for AD_Element
  *  @author Adempiere (generated) 
- *  @version Release 3.5.3a
+ *  @version Release 3.5.4a
  */
 public interface I_AD_Element 
 {
@@ -90,6 +88,8 @@ public interface I_AD_Element
 	  */
 	public int getAD_Reference_ID();
 
+	public I_AD_Reference getAD_Reference() throws RuntimeException;
+
     /** Column name AD_Reference_Value_ID */
     public static final String COLUMNNAME_AD_Reference_Value_ID = "AD_Reference_Value_ID";
 
@@ -102,6 +102,8 @@ public interface I_AD_Element
 	  * Required to specify, if data type is Table or List
 	  */
 	public int getAD_Reference_Value_ID();
+
+	public I_AD_Reference getAD_Reference_Value() throws RuntimeException;
 
     /** Column name ColumnName */
     public static final String COLUMNNAME_ColumnName = "ColumnName";
