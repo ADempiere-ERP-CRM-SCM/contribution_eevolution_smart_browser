@@ -54,7 +54,6 @@ public class MColumn extends X_AD_Column
 	public static I_AD_Column setAD_Column(Properties ctx ,I_AD_Column column , String trxName)
 	{
 		MTable table = MTable.get(ctx, column.getAD_Table_ID());
-		column.setEntityType(table.getEntityType());
 		M_Element element =  new M_Element(ctx, column.getAD_Element_ID() , trxName);
 		if(element.getAD_Reference_ID() == DisplayType.ID)
 		{

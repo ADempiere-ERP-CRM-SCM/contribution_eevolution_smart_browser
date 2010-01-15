@@ -20,6 +20,7 @@ package org.compiere.apps;
 
 import java.awt.Cursor;
 import java.awt.Frame;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -29,7 +30,10 @@ import javax.swing.JPopupMenu;
 
 import org.compiere.apps.search.Find;
 import org.compiere.grid.GridController;
+import org.compiere.grid.VOnlyCurrentDays;
+import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
+import org.compiere.model.MQuery;
 import org.compiere.model.MUserQuery;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
@@ -52,9 +56,11 @@ public class ASearch implements ActionListener
 	 *  @param tableName table name
 	 *  @param query query
 	 */
-	public ASearch (JComponent invoker, Frame owner, int targetWindowNo, GridController gc ,GridTab gridTab)
+	public ASearch (AppsAction appsAction, Frame owner, int targetWindowNo, GridController gc ,GridTab gridTab, int m_onlyCurrentDays)
 	{
-		m_invoker =  invoker;
+		m_onlycurrentdays = m_onlyCurrentDays;
+		m_appsaction = appsAction;
+		m_invoker =  appsAction.getButton();
 		m_owner = owner;
 		m_targetWindowNo = targetWindowNo;
 		m_gt = gridTab;
@@ -70,6 +76,8 @@ public class ASearch implements ActionListener
 	/**	Logger			*/
 	private static CLogger log = CLogger.getCLogger(ASearch.class);
 	
+	int m_onlycurrentdays;
+	AppsAction m_appsaction;
 	JComponent m_invoker;
 	Frame m_owner;
 	int m_targetWindowNo;
@@ -88,9 +96,39 @@ public class ASearch implements ActionListener
 	{
 		boolean baseLanguage = Env.isBaseLanguage(Env.getCtx(), "AD_Window"); 
 		MUserQuery[] search = MUserQuery.get(Env.getCtx(), m_gt.getAD_Tab_ID());
-		KeyNamePair pp = new KeyNamePair (0, Msg.translate(Env.getCtx(), "Find"));
+		KeyNamePair pp = null;
+		
+		if(search.length == 0)
+		{
+			/*GridField[] findFields = GridField.createFields(Env.getCtx(), m_targetWindowNo, 0, m_gt.getAD_Tab_ID());
+			Find find = new Find (Env.getFrame(m_owner), m_targetWindowNo, m_gt.getName(),
+					m_gt.getAD_Tab_ID(), m_gt.getAD_Table_ID(), m_gt.getTableName(), 
+					m_gt.getWhereExtended(), findFields, 1);
+			MQuery query = find.getQuery();
+			find.dispose();
+			find = null;
+
+			//	Confirmed query
+			if (query != null)
+			{
+				//m_onlyCurrentRows = false;      	//  search history too
+				m_gt.setQuery(query);
+				m_gc.query(false, m_onlycurrentdays, 0);   //  autoSize
+			}
+			m_appsaction.setPressed(m_gt.isQueryActive());
+			return;*/
+			Find find = new Find (m_owner, m_targetWindowNo, m_gc , m_gt, 1);
+			AEnv.showCenterWindow(m_owner, find);
+			m_appsaction.setPressed(m_gt.isQueryActive());
+			return;
+		}
+		
+		else
+		{	
+		pp = pp = new KeyNamePair (0, Msg.translate(Env.getCtx(), "Find"));
 		m_list.add(pp);
 		m_popup.add(pp.toString()).addActionListener(this);
+		}
 		
 		for (MUserQuery query: search)
 		{
@@ -126,7 +164,7 @@ public class ASearch implements ActionListener
 				launchSearch (pp);
 				return;
 			}
-		}
+		}		
 	}	//	actionPerformed
 	
 	/**
@@ -135,10 +173,11 @@ public class ASearch implements ActionListener
 	 */
 	private void launchSearch (KeyNamePair pp)
 	{
-		Find find = new Find (m_owner, m_targetWindowNo, m_gc , m_gt, 1);
+		Find find = new Find (m_owner, m_targetWindowNo, m_gc , m_gt, 0);
 		if(pp.getName().equals(Msg.getMsg(Env.getCtx(), "Find")))
 		{
 			AEnv.showCenterWindow(m_owner, find);
+			m_appsaction.setPressed(m_gt.isQueryActive());
 		}
 		else
 		{	

@@ -685,12 +685,14 @@ public class MTable extends X_AD_Table
 		//	Sync Table ID
 		if (newRecord)
 		{
+			createMandatoryColumns();
+			
 			MSequence seq = MSequence.get(getCtx(), getTableName(), get_TrxName());
 			if (seq == null || seq.get_ID() == 0)
 			{	
 				MSequence.createTableSequence(getCtx(), getTableName(), get_TrxName());
 			}
-			createMandatoryColumns();
+			
 		}
 		else
 		{
@@ -808,7 +810,7 @@ public class MTable extends X_AD_Table
 	public void createMandatoryColumns()
 	{		
 		MColumn column = null;
-		M_Element.get(getCtx(),COLUMNNAME_AD_Client_ID);
+		//M_Element.get(getCtx(),COLUMNNAME_AD_Client_ID);
 		
 		column = new MColumn(this, COLUMNNAME_AD_Client_ID	, 22 , DisplayType.TableDir , "@#AD_Client_ID@");
 		column.setUpdateable(false);

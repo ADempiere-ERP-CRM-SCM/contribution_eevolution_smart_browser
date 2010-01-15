@@ -65,6 +65,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import org.compiere.apps.ADialog;
+import org.compiere.apps.AEnv;
 import org.compiere.apps.ConfirmPanel;
 import org.compiere.apps.StatusBar;
 import org.compiere.grid.GridController;
@@ -153,6 +154,7 @@ public final class Find extends CDialog
 		int AD_Table_ID, String tableName, String whereExtended,
 		GridField[] findFields, int minRecords)
 	{
+		super(owner, Msg.getMsg(Env.getCtx(), "Find") + ": " + title, true);
 		log.info(title);
 		//
 		m_targetWindowNo = targetWindowNo;
@@ -164,6 +166,7 @@ public final class Find extends CDialog
 		//
 		m_query = new MQuery (tableName);
 		m_query.addRestriction(whereExtended);
+		m_query.addRestriction(Env.parseContext(Env.getCtx(), m_targetWindowNo, whereExtended, false));		
 		//	Required for Column Validation
 		Env.setContext(Env.getCtx(), m_targetWindowNo, "Find_Table_ID", m_AD_Table_ID);
 		//  Context for Advanced Search Grid is WINDOW_FIND
@@ -185,6 +188,8 @@ public final class Find extends CDialog
 		}
 		//
 		this.getRootPane().setDefaultButton(confirmPanelS.getOKButton());
+		if (minRecords > 0)
+		AEnv.showCenterWindow(owner, this);
 	}	//	Find
 	
 	GridController m_gc ;
@@ -747,7 +752,7 @@ public final class Find extends CDialog
 	public void actionPerformed (ActionEvent e)
 	{
 		log.info(e.getActionCommand());
-		
+		//
 		if (e.getActionCommand().equals(ConfirmPanel.A_CANCEL))
 			cmd_cancel();
 		else if (e.getActionCommand().equals(ConfirmPanel.A_REFRESH))
@@ -899,6 +904,7 @@ public final class Find extends CDialog
 	{
 		//	Create Query String
 		m_query = new MQuery(m_tableName);
+		m_query.addRestriction(Env.parseContext(Env.getCtx(), m_targetWindowNo, m_whereExtended, false));
 		if (hasValue && !valueField.getText().equals("%") && valueField.getText().length() != 0)
 		{
 			String value = valueField.getText().toUpperCase();
@@ -1024,6 +1030,7 @@ public final class Find extends CDialog
 		advancedTable.stopEditor(true);
 		//
 		m_query = new MQuery(m_tableName);
+		m_query.addRestriction(Env.parseContext(Env.getCtx(), m_targetWindowNo, m_whereExtended, false));
 		StringBuffer code = new StringBuffer();
 		for (int row = 0; row < advancedTable.getRowCount(); row++)
 		{
@@ -1076,9 +1083,7 @@ public final class Find extends CDialog
 				if (!(parsedValue instanceof Integer)) {
 					continue;
 				}
-				m_query
-
-				.addRestriction(getSubCategoryWhereClause(((Integer) parsedValue).intValue()));
+				m_query.addRestriction(getSubCategoryWhereClause(((Integer) parsedValue).intValue()));
 			}
 			else
 				m_query.addRestriction(ColumnSQL, Operator, parsedValue,
@@ -1454,7 +1459,7 @@ public final class Find extends CDialog
 		String finalSQL = MRole.getDefault().addAccessSQL(sql.toString(), 
 			m_tableName, MRole.SQL_NOTQUALIFIED, MRole.SQL_RO);
 		finalSQL = Env.parseContext(Env.getCtx(), m_targetWindowNo, finalSQL, false);
-		Env.setContext(Env.getCtx(), m_targetWindowNo, TABNO, "FindSQL", finalSQL);
+		Env.setContext(Env.getCtx(), m_targetWindowNo, TABNO, GridTab.CTX_FindSQL, finalSQL);
 
 		//  Execute Qusery
 		m_total = 999999;
@@ -1569,4 +1574,5 @@ public final class Find extends CDialog
 			return comp;
 		}
 	}	// ProxyRenderer
+
 }	//	Find
