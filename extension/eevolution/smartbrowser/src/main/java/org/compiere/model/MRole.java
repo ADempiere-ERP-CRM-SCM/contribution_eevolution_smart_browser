@@ -19,12 +19,16 @@ package org.compiere.model;
 import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Vector;
 import java.util.logging.Level;
 
 import org.compiere.util.CCache;
@@ -2459,5 +2463,139 @@ public final class MRole extends X_AD_Role
 		}	//	toString
 
 	}	//	OrgAccess
+	
+	
+	//// remove this
+	
+	private List<MRole> m_includedRoles = null;
+	
+	/**
+	 * Checks the access rights of the given role/client for the given document actions.
+	 * @param clientId
+	 * @param docTypeId
+	 * @param options
+	 * @param maxIndex
+	 * @return number of valid actions in the String[] options
+	 * @see metas-2009_0021_AP1_G94
+	 */
+	public int checkActionAccess(int clientId, int docTypeId, String[] options, int maxIndex)
+	{
+		if (maxIndex <= 0)
+			return maxIndex;
+		//
+		final Vector<String> validOptions = new Vector<String>();
+		final List<Object> params = new ArrayList<Object>();
+		params.add(clientId);
+		params.add(docTypeId);
+		//
+		final StringBuffer sql_values = new StringBuffer();
+		for (int i = 0; i < maxIndex; i++)
+		{
+			if (sql_values.length() > 0)
+				sql_values.append(",");
+			sql_values.append("?");
+			params.add(options[i]);
+		}
+		//
+		final String sql = "SELECT rl.Value FROM AD_Document_Action_Access a"
+				+ " INNER JOIN AD_Ref_List rl ON (rl.AD_Reference_ID=135 and rl.AD_Ref_List_ID=a.AD_Ref_List_ID)"
+				+ " WHERE a.IsActive='Y' AND a.AD_Client_ID=? AND a.C_DocType_ID=?" // #1,2
+					+ " AND rl.Value IN ("+sql_values+")"
+					+ " AND "+getIncludedRolesWhereClause("a.AD_Role_ID", params)
+		;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try
+		{
+			pstmt = DB.prepareStatement(sql, null);
+			DB.setParameters(pstmt, params);
+			rs = pstmt.executeQuery();
+			while (rs.next())
+			{
+				String op = rs.getString(1);
+				validOptions.add(op);
+			}
+			validOptions.toArray(options);
+		}
+		catch (SQLException e)
+		{
+			log.log(Level.SEVERE, sql, e);
+		}
+		finally
+		{
+			DB.close(rs, pstmt);
+			rs = null; pstmt = null;
+		}
+		//
+		int newMaxIndex = validOptions.size(); 
+		return newMaxIndex;
+	}
+	
+	/**
+	 * Get Role Where Clause.
+	 * It will look something like myalias.AD_Role_ID IN (?, ?, ?).
+	 * @param roleColumnSQL role columnname or role column SQL (e.g. myalias.AD_Role_ID) 
+	 * @param params a list where the method will put SQL parameters.
+	 * 				If null, this method will generate a not parametrized query 
+	 * @return role SQL where clause
+	 */
+	public String getIncludedRolesWhereClause(String roleColumnSQL, List<Object> params)
+	{
+		StringBuffer whereClause = new StringBuffer();
+		if (params != null)
+		{
+			whereClause.append("?");
+			params.add(getAD_Role_ID());
+		}
+		else
+		{
+			whereClause.append(getAD_Role_ID());
+		}
+		//
+		for (MRole role : getIncludedRoles(true))
+		{
+			if (params != null)
+			{
+				whereClause.append(",?");
+				params.add(role.getAD_Role_ID());
+			}
+			else
+			{
+				whereClause.append(",").append(role.getAD_Role_ID());
+			}
+		}
+		//
+		whereClause.insert(0, roleColumnSQL+" IN (").append(")");
+		return whereClause.toString();
+	}
+	
+	/**
+	 * 
+	 * @return unmodifiable list of included roles
+	 * @see metas-2009_0021_AP1_G94
+	 */
+	public List<MRole> getIncludedRoles(boolean recursive)
+	{
+		if (!recursive)
+		{
+			List<MRole> list = this.m_includedRoles;
+			if (list == null)
+				list = new ArrayList<MRole>();
+			return Collections.unmodifiableList(list);
+		}
+		else
+		{
+			List<MRole> list = new ArrayList<MRole>();
+			if (m_includedRoles != null)
+			{
+				for (MRole role : m_includedRoles)
+				{
+					list.add(role);
+					list.addAll(role.getIncludedRoles(true));
+				}
+			}
+			return list;
+		}
+	}
 	
 }	//	MRole

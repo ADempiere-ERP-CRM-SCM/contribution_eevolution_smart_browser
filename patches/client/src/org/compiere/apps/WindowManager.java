@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.compiere.apps.form.FormFrame;
 import org.compiere.swing.CFrame;
-import org.eevolution.form.Browser;
+import org.eevolution.form.VBrowser;
 
 /**
  * Managed a list of window.
@@ -128,14 +128,14 @@ public class WindowManager {
 		return null;
 	}
 	
-	public Browser findBrowse(int AD_Browse_ID) {
-		for ( CFrame w : windows ) {
-			if ( w instanceof Browser ) {
-				Browser ff = (Browser)w;
+	public VBrowser findBrowse(int AD_Browse_ID) {
+		/*for ( CFrame w : windows ) {
+			if ( w instanceof VBrowser ) {
+				VBrowser ff = (VBrowser)w;
 				if ( ff.getAD_Browse_ID() == AD_Browse_ID )
 					return ff;
 			}
-		}
+		}*/
 		return null;
 	}
 }

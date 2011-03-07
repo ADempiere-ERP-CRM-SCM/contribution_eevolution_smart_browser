@@ -73,6 +73,7 @@ import org.compiere.apps.ConfirmPanel;
 import org.compiere.apps.ProcessCtl;
 import org.compiere.apps.ProcessParameterPanel;
 import org.compiere.apps.StatusBar;
+import org.compiere.apps.form.FormPanel;
 import org.compiere.apps.search.Info_Column;
 import org.compiere.grid.ed.VCheckBox;
 import org.compiere.grid.ed.VDate;
@@ -108,9 +109,9 @@ import org.compiere.util.TrxRunnable;
  * UI Browser
  * @author victor.perez@e-evolution.com, victor.perez@e-evolution.com
  */
-public class Browser extends CFrame implements ActionListener, VetoableChangeListener, ChangeListener, ListSelectionListener, TableModelListener, ASyncProcess
+public class VBrowser extends Browser implements ActionListener, VetoableChangeListener, ChangeListener, ListSelectionListener, TableModelListener, ASyncProcess
 {
-	
+	CFrame m_frame = new CFrame();
 	/**
 	 * 
 	 */
@@ -129,10 +130,13 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 	 * 	@param multiSelection multiple selections
 	 * 	@param whereClause where clause
 	 */
-	public Browser(Frame frame, boolean modal, int WindowNo, String value,
+	public VBrowser(Frame frame, boolean modal, int WindowNo, String value,
 		MBrowse browse, String keyColumn,
 		boolean multiSelection, String whereClause)
 	{
+		super(modal, WindowNo, value, browse, keyColumn, multiSelection, whereClause);
+		
+		/*  AJC EEvolution Nov 2010
 		m_Browse = browse;
 		m_View = browse.getAD_View();
 		p_WindowNo = WindowNo;
@@ -149,13 +153,15 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 		
 		//super (frame, modal, WindowNo, tableName, keyColumn, multiSelection, whereClause);
 		log.info(m_Browse.getName() + " - " + keyColumn + " - " + whereClause);
-		setTitle(m_Browse.getName());
+		*/
+		
+		m_frame.setTitle(m_Browse.getName());
 				
 
 		initComponents();
 		statInit();
 		p_loadedOK = initBrowser ();
-		setPreferredSize(getPreferredSize());
+		m_frame.setPreferredSize(getPreferredSize());
 		
 		//
 		int no = detail.getRowCount();
@@ -173,74 +179,80 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 
 	
 	/** Smart Browse 							*/
-	private MBrowse 	m_Browse = null;
+	//private MBrowse 	m_Browse = null;
 	/** Smart View								*/
-	private MView		m_View	= null;
+	//private MView		m_View	= null;
 	
-	private static final int	WINDOW_WIDTH = 1024;	//	width of the window
+	//private static final int	WINDOW_WIDTH = 1024;	//	width of the window
 
 
 	/** Table                   */
 	//protected MiniTable detail = new MiniTable();
 	
 	/**  String Array of Column Info    */
-	private Info_Column[] m_generalLayout;
+	//private Info_Column[] m_generalLayout;
 	/** list of query columns           */
-	private ArrayList<String> 	m_queryColumns = new ArrayList<String>();
+	//private ArrayList<String> 	m_queryColumns = new ArrayList<String>();
 	/** list of query columns (SQL) */
-	private ArrayList<String>	m_queryColumnsSql = new ArrayList<String>();
-	/** Process Parameters Panel    */
-	private ProcessParameterPanel parameterPanel;
+	//private ArrayList<String>	m_queryColumnsSql = new ArrayList<String>();
+	
 	/** Parameters					*/
-	private ArrayList <String> m_parameters;
+	//private ArrayList <String> m_parameters;
 	/** Parameters Values 			*/
-	private ArrayList <Object> m_values;
+	//private ArrayList <Object> m_values;
 	/** MProcess process 			*/
-	private MProcess m_process = null;
+	//private MProcess m_process = null;
 	/** ProcessInfo					*/
-	ProcessInfo m_pi = null;
+	//ProcessInfo m_pi = null;
 	
 	/** Loading success indicator       */
-	protected boolean	        p_loadedOK = false;
+	//protected boolean	        p_loadedOK = false;
 	/** Model Index of Key Column   */
-	private int                 m_keyColumnIndex = -1;
+	//private int                 m_keyColumnIndex = -1;
 	/** OK pressed                  */
-	private boolean			    m_ok = false;
+	//private boolean			    m_ok = false;
 	/** Cancel pressed - need to differentiate between OK - Cancel - Exit	*/
-	private boolean			    m_cancel = false;
+	//private boolean			    m_cancel = false;
 	/** Result IDs              */
-	private ArrayList<Integer>	m_results = new ArrayList<Integer>(3);
+	//private ArrayList<Integer>	m_results = new ArrayList<Integer>(3);
 	/**	Logger			*/
-	protected CLogger log = CLogger.getCLogger(getClass());
+	//protected CLogger log = CLogger.getCLogger(getClass());
+	/** Layout of Grid          */
+	//protected Info_Column[]   p_layout;
+	//private String              m_sqlMain;
+	/** Count SQL Statement		*/
+	//private String              m_sqlCount;
+	/** Order By Clause         */
+	//private String              m_sqlOrder;
+
+	
+	/** Master (owning) Window  */
+	//protected int				p_WindowNo;
+	/** Table Name              */
+	//protected String            p_FromClause;
+	/** Key Column Name         */
+	//protected String            p_keyColumn;
+	/** Enable more than one selection  */
+	//protected boolean			p_multiSelection;
+	/** Initial WHERE Clause    */
+	//protected String			p_whereClause = "";
+	/** Window Width                */
+	//protected static final int        INFO_WIDTH = 800;
+	
+	/** Process Parameters Panel    */
+	private ProcessParameterPanel parameterPanel;
 	/** StatusBar **/
 	protected StatusBar statusBar = new StatusBar();
 	/** Worker                  */
 	private Worker              m_worker = null;
-	/** Layout of Grid          */
-	protected Info_Column[]   p_layout;
-	private String              m_sqlMain;
-	/** Count SQL Statement		*/
-	private String              m_sqlCount;
-	/** Order By Clause         */
-	private String              m_sqlOrder;
-
 	
-	/** Master (owning) Window  */
-	protected int				p_WindowNo;
-	/** Table Name              */
-	protected String            p_FromClause;
-	/** Key Column Name         */
-	protected String            p_keyColumn;
-	/** Enable more than one selection  */
-	protected boolean			p_multiSelection;
-	/** Initial WHERE Clause    */
-	protected String			p_whereClause = "";
-	/** Window Width                */
-	protected static final int        INFO_WIDTH = 800;
+	
+	
 	
 	/**
 	 *	Static Setup - add fields to parameterPanel (GridLayout)
 	 */
+	
 	private void statInit()
 	{	
 		searchPanel.setLayout(new ALayout());
@@ -329,14 +341,20 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 	{
 		try 
 		{
+			
+			/*
 			MViewColumn column = field.getAD_View_Column();	
 			//String name = field.getName()//column.getAD_Column().getColumnName();
 				
 			Language language = Language.getLoginLanguage();
+			
+			
 			MLookup dataL = MLookupFactory.get(m_Browse.getCtx(), p_WindowNo,column.getAD_Column_ID(),
 					field.getAD_Reference_ID(), language, column.getAD_Column().getColumnName() , field.getAD_Reference_Value_ID(), false,"");
-	
-			VLookup data = new VLookup(column.getAD_Column().getColumnName(), field.isMandatory(), false, true, dataL);
+			 */
+			
+			MLookup dataL = getMLookup(field);
+			VLookup data = new VLookup(field.getAD_View_Column().getAD_Column().getColumnName(), field.isMandatory(), false, true, dataL);
 			data.setBackground(AdempierePLAF.getInfoBackground());
 			data.addVetoableChangeListener(this);	
 			data.setName(field.getName());
@@ -394,8 +412,10 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 	 */
 	private boolean initBrowserTable ()
 	{
+		/*
 		Collection<MBrowseField> fields = m_Browse.getFields();
 		ArrayList<Info_Column> list = new ArrayList<Info_Column>();
+		
 		for (MBrowseField field : fields)
 		{
 			MViewColumn vcol = field.getAD_View_Column();
@@ -466,7 +486,7 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 			}
 			else
 				log.finest("Not Added Column=" + columnName);
-		}
+		}*/
 	
 		//	Miminum check
 		/*if (m_queryColumns.size() == 0)
@@ -485,11 +505,11 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 		
 		//  Set Title
 		String title = Msg.translate(Env.getCtx(), m_Browse.getName()); 
-		setTitle(getTitle() + " " + title);
-		
+		m_frame.setTitle(m_frame.getTitle() + " " + title);
+		ArrayList<Info_Column> list = initBrowserData();
 		if (list.size() == 0)
 		{
-			ADialog.error(p_WindowNo, this, "Error", "No Browse Fields");
+			ADialog.error(p_WindowNo, m_frame, "Error", "No Browse Fields");
 			log.log(Level.SEVERE, "No Brwose for view=" + m_View.getName());
 			return false;
 		}
@@ -508,10 +528,13 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 	 *  Includes first AND
 	 * 	@return where clause
 	 */
-	protected String getSQLWhere()
+	/*protected String getSQLWhere()
 	{
+		// BEGIN AJC E-EVOLUTION 21 OCT 2010
+		//StringBuffer sql = new StringBuffer(" AND " + m_Browse.getWhereClause());
+		StringBuffer sql = new StringBuffer(m_Browse.getWhereClause()==null ? "" : " AND " + m_Browse.getWhereClause());
+		//END AJC E-EVOLUTION 21 OCT 2010
 		
-		StringBuffer sql = new StringBuffer(" AND " + m_Browse.getWhereClause());
 		if(getParameters().size() > 0)
 		{
 			sql.append(" AND ");
@@ -530,7 +553,7 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 			}
 		}
 		return sql.toString();
-	}	//	getSQLWhere
+	}*/	//	getSQLWhere
 	
 	/**
 	 * set Parameteres and Values
@@ -585,32 +608,32 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 	 * @param name
 	 * @param value
 	 */
-	private void addParameter(String name , Object value)
+	/*private void addParameter(String name , Object value)
 	{
 		if(value != null && value.toString().length() > 0)
 		{
 			m_parameters.add(name);
 			m_values.add(value);
 		}		
-	}
+	}*/
 	
 	/**
 	 * get Parameters names
 	 * @return ArrayList with parameters names
 	 */
-	private ArrayList <String> getParameters()
+	/*private ArrayList <String> getParameters()
 	{
 		return m_parameters;
-	}
+	}*/
 	
 	/**
 	 * get Parameters values
 	 * @return ArralyList with parameters values
 	 */
-	private ArrayList <Object> getParametersValues()
+	/*private ArrayList <Object> getParametersValues()
 	{
 		return m_values;
-	}
+	}*/
 
 	/**
 	 *	Add directly Query as Strings
@@ -618,7 +641,7 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 	 * 	@param index index
 	 * 	@param value value
 	 */
-	private void addSQLWhere(StringBuffer sql, int index, String value)
+	/*private void addSQLWhere(StringBuffer sql, int index, String value)
 	{
 		if (!(value.equals("") || value.equals("%")) && index < m_queryColumns.size())
 		{
@@ -630,7 +653,7 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 			else
 				sql.append("%'");
 		}
-	}	//	addSQLWhere
+	}*/	//	addSQLWhere
 
 	/**
 	 *  Set Parameters for Query.
@@ -639,10 +662,10 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 	 *  @param forCount for counting records
 	 *  @throws SQLException
 	 */
-	protected void setParameters(PreparedStatement pstmt, boolean forCount) throws SQLException
+	/*protected void setParameters(PreparedStatement pstmt, boolean forCount) throws SQLException
 	{
 		int index = 1;
-	}   //  setParameters
+	} */  //  setParameters
 	
 	/**
 	 *	Set Status Line
@@ -677,7 +700,7 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 		if (!testCount())
 			return;
 
-		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		m_frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		setStatusLine(Msg.getMsg(Env.getCtx(), "StartSearch"), false);
 		m_worker = new Worker();
 		m_worker.start();
@@ -688,13 +711,13 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 	 */
 	private void cmd_zoom()
 	{
-		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		m_frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		Integer record_ID = getSelectedRowKey();
 	
 		if (record_ID == null)
 			return;
 		AEnv.zoom(m_View.getParentViewDefinition().getAD_Table_ID(), record_ID);
-		setCursor(Cursor.getDefaultCursor());
+		m_frame.setCursor(Cursor.getDefaultCursor());
 	}	//	cmd_zoom
 
 	/**************************************************************************
@@ -760,7 +783,7 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 	 */
 	private boolean testCount()
 	{
-		long start = System.currentTimeMillis();
+		/*long start = System.currentTimeMillis();
 		String dynWhere = getSQLWhere();
 		StringBuffer sql = new StringBuffer (m_sqlCount);
 		if (dynWhere.length() > 0)
@@ -789,11 +812,15 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 		finally {
 			DB.close(rs, pstmt);
 			rs = null; pstmt = null;
-		}
-		log.fine("#" + no + " - " + (System.currentTimeMillis()-start) + "ms");
+		}*/
+		
+		int no=-1;
+		
+		no = getCount();
+		//log.fine("#" + no + " - " + (System.currentTimeMillis()-start) + "ms");
 		MRole role = MRole.getDefault(); 		
 		if (role.isQueryMax(no))
-			return ADialog.ask(p_WindowNo, this, "InfoHighRecordCount", String.valueOf(no));
+			return ADialog.ask(p_WindowNo, m_frame, "InfoHighRecordCount", String.valueOf(no));
 		return true;
 	}	//	testCount
 		
@@ -839,7 +866,7 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 	 *	Get where clause for (first) selected key
 	 *  @return WHERE Clause
 	 */
-	public String getSelectedSQL()
+	/*public String getSelectedSQL()
 	{
 		//	No results
 		Collection<Integer> keys = getSelectedKeys();
@@ -869,16 +896,16 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 		if (keys.size() > 1)
 			sb.append(")");
 		return sb.toString();
-	}	//	getSelectedSQL;
+	}*/	//	getSelectedSQL;
 	
 	/**
 	 *  Get Key Column Name
 	 *  @return column name
 	 */
-	protected String getKeyColumn()
+	/*public String getKeyColumn()
 	{
 		return p_keyColumn;
-	}   //  getKeyColumn
+	} */  //  getKeyColumn
 	
 	/**
 	 *  Save Selection Details
@@ -890,7 +917,7 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 	 *  Get the key of currently selected row
 	 *  @return selected key
 	 */
-	protected Integer getSelectedRowKey()
+	/*public Integer getSelectedRowKey()
 	{
 		ArrayList<Integer> selectedDataList = getSelectedRowKeys();
 		if (selectedDataList.size() == 0)
@@ -901,14 +928,14 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 		{
 			return selectedDataList.get(0);
 		}
-	}   //  getSelectedRowKey
+	} */  //  getSelectedRowKey
 	
 	/**
      *  Get the keys of selected row/s based on layout defined in prepareTable
      *  @return IDs if selection present
      *  @author ashley
      */
-    protected ArrayList<Integer> getSelectedRowKeys()
+    public ArrayList<Integer> getSelectedRowKeys()
     {
         ArrayList<Integer> selectedDataList = new ArrayList<Integer>();
         
@@ -954,23 +981,23 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 	 *	Get selected Keys
 	 *  @return selected keys (Integers)
 	 */
-	public Collection getSelectedKeys()
+	/*public Collection getSelectedKeys()
 	{
 		if (!m_ok || m_results.size() == 0)
 			return null;	
 		return m_results;
-	}	//	getSelectedKeys;
+	}*/	//	getSelectedKeys;
 
 	/**
 	 *	Get (first) selected Key
 	 *  @return selected key
 	 */
-	public Object getSelectedKey()
+	/*public Object getSelectedKey()
 	{
 		if (!m_ok || m_results.size() == 0)
 			return null;
 		return m_results.get(0);
-	}	//	getSelectedKey
+	}*/	//	getSelectedKey
 	
 	/**
 	 *	Dispose and save Selection
@@ -992,8 +1019,8 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 		m_worker = null;
 		//
 		saveSelection();
-		removeAll();
-		super.dispose();
+		m_frame.removeAll();
+		m_frame.dispose();
 		
 		if(m_Browse.getAD_Process_ID() <= 0)
 			return;
@@ -1006,7 +1033,7 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 		m_pi.setAD_PInstance_ID (instance.getAD_PInstance_ID());
 		parameterPanel.saveParameters();
 		//	Execute Process
-		ProcessCtl worker = new ProcessCtl(this, Env.getWindowNo(this), m_pi, null);
+		ProcessCtl worker = new ProcessCtl(this, Env.getWindowNo(m_frame), m_pi, null);
 		worker.start();     //  complete tasks in unlockUI / generateShipments_complete
 	}	//	dispose
 
@@ -1121,7 +1148,7 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
         });
         toolsBar.add(bFind);
 
-        getContentPane().add(toolsBar, java.awt.BorderLayout.PAGE_START);
+        m_frame.getContentPane().add(toolsBar, java.awt.BorderLayout.PAGE_START);
 
         searchTab.setLayout(new java.awt.BorderLayout());
 
@@ -1187,7 +1214,7 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
         graphPanel.setLayout(new java.awt.BorderLayout());
         tabsPanel.addTab("Graph", graphPanel);
 
-        getContentPane().add(tabsPanel, java.awt.BorderLayout.CENTER);
+        m_frame.getContentPane().add(tabsPanel, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
     private void bZoomActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bZoomActionPerformed
@@ -1201,7 +1228,7 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
     
     private void bCancelActionPerformed(java.awt.event.ActionEvent evt) {                                    
         // TODO add your handling code here:
-    	dispose();
+    	m_frame.dispose();
     }   
     
     private void bSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSearchActionPerformed
@@ -1343,7 +1370,7 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 				detail.addTotals(p_layout);
 			detail.autoSize();
 			//
-			setCursor(Cursor.getDefaultCursor());
+			m_frame.setCursor(Cursor.getDefaultCursor());
 			setStatusLine(Integer.toString(no) + " " + Msg.getMsg(Env.getCtx(), "SearchRows_EnterQuery"), false);
 			setStatusDB(Integer.toString(no));
 			if (no == 0)
@@ -1392,16 +1419,23 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 		String keyColumn = "";
 		boolean multiSelection = true;
 		String whereClause = "";
-		Browser browser = 	new Browser(frame, modal , WindowNo, value, browse, keyColumn,multiSelection, whereClause);
+		VBrowser browser = 	new VBrowser(frame, modal , WindowNo, value, browse, keyColumn,multiSelection, whereClause);
 		//browser.setPreferredSize(getPreferredSize ());
-		browser.setVisible(true);
-		browser.pack();
+		browser.getFrame().setVisible(true);
+		browser.getFrame().pack();
 	}
 	
-	public int getAD_Browse_ID()
+	
+	
+	public CFrame getFrame()
+	{
+		return m_frame;
+	}
+	
+	/*public int getAD_Browse_ID()
 	{
 		 return m_Browse.getAD_Browse_ID();
-	}
+	}*/
 	
 	/**
 	 * 	Get Preferred Size
@@ -1409,7 +1443,7 @@ public class Browser extends CFrame implements ActionListener, VetoableChangeLis
 	 */
 	public Dimension getPreferredSize ()
 	{
-		Dimension size = super.getPreferredSize ();
+		Dimension size = m_frame.getPreferredSize ();
 		if (size.width > WINDOW_WIDTH)
 			size.width = WINDOW_WIDTH - 30;
 		return size;

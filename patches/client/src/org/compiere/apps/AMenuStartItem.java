@@ -36,6 +36,7 @@ import org.compiere.util.Env;
 import org.compiere.util.Ini;
 import org.compiere.util.Msg;
 import org.eevolution.form.Browser;
+import org.eevolution.form.VBrowser;
 
 
 /**
@@ -368,7 +369,7 @@ public class AMenuStartItem extends Thread implements ActionListener
 	{
 		CFrame ff = new CFrame();
 		if (Ini.isPropertyBool(Ini.P_SINGLE_INSTANCE_PER_WINDOW)) {
-			ff = m_menu.getWindowManager().findBrowse(AD_Browse_ID);
+			ff = m_menu.getWindowManager().findBrowse(AD_Browse_ID).getFrame();
 			if ( ff != null ) {
 				ff.toFront();
 				return;
@@ -384,7 +385,7 @@ public class AMenuStartItem extends Thread implements ActionListener
 		String keyColumn = "";
 		boolean multiSelection = true;
 		String whereClause = "";
-		ff 	= new Browser(ff, modal , WindowNo, value, browse, keyColumn,multiSelection, whereClause);
+		ff 	= new VBrowser(ff, modal , WindowNo, value, browse, keyColumn,multiSelection, whereClause).getFrame();
 		ff.setVisible(true);
 		ff.pack();
 		/**boolean ok = ff.openForm(AD_Form_ID);
