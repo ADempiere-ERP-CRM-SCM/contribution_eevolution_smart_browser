@@ -144,5 +144,6 @@
     <delete dir="${buildPatches}"/>
     <delete dir="${zkBuildPatches}"/>
     <delete dir="${dist}"/>
+    <delete dir="${basedir}/WEB-INF/classes"/>
   </target>
 </project>
