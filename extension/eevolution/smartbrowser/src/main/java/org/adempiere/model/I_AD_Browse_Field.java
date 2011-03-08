@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for AD_Browse_Field
  *  @author Adempiere (generated) 
- *  @version Release 3.5.3a
+ *  @version Release 3.6.0LTS
  */
 public interface I_AD_Browse_Field 
 {
@@ -31,7 +31,7 @@ public interface I_AD_Browse_Field
     /** TableName=AD_Browse_Field */
     public static final String Table_Name = "AD_Browse_Field";
 
-    /** AD_Table_ID=1000022 */
+    /** AD_Table_ID=53223 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -45,10 +45,10 @@ public interface I_AD_Browse_Field
     /** Column name AD_Browse_Field_ID */
     public static final String COLUMNNAME_AD_Browse_Field_ID = "AD_Browse_Field_ID";
 
-	/** Set Browse Field	  */
+	/** Set Smart Browse Fields ID	  */
 	public void setAD_Browse_Field_ID (int AD_Browse_Field_ID);
 
-	/** Get Browse Field	  */
+	/** Get Smart Browse Fields ID	  */
 	public int getAD_Browse_Field_ID();
 
     /** Column name AD_Browse_ID */
@@ -83,7 +83,7 @@ public interface I_AD_Browse_Field
 	  */
 	public int getAD_Element_ID();
 
-	public I_AD_Element getAD_Element() throws RuntimeException;
+	public org.compiere.model.I_AD_Element getAD_Element() throws RuntimeException;
 
     /** Column name AD_Org_ID */
     public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
@@ -111,7 +111,7 @@ public interface I_AD_Browse_Field
 	  */
 	public int getAD_Reference_ID();
 
-	public I_AD_Reference getAD_Reference() throws RuntimeException;
+	public org.compiere.model.I_AD_Reference getAD_Reference() throws RuntimeException;
 
     /** Column name AD_Reference_Value_ID */
     public static final String COLUMNNAME_AD_Reference_Value_ID = "AD_Reference_Value_ID";
@@ -126,7 +126,7 @@ public interface I_AD_Browse_Field
 	  */
 	public int getAD_Reference_Value_ID();
 
-	public I_AD_Reference getAD_Reference_Value() throws RuntimeException;
+	public org.compiere.model.I_AD_Reference getAD_Reference_Value() throws RuntimeException;
 
     /** Column name AD_View_Column_ID */
     public static final String COLUMNNAME_AD_View_Column_ID = "AD_View_Column_ID";

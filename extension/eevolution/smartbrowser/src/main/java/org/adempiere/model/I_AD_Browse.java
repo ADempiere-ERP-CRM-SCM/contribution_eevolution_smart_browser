@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for AD_Browse
  *  @author Adempiere (generated) 
- *  @version Release 3.5.3a
+ *  @version Release 3.6.0LTS
  */
 public interface I_AD_Browse 
 {
@@ -31,7 +31,7 @@ public interface I_AD_Browse
     /** TableName=AD_Browse */
     public static final String Table_Name = "AD_Browse";
 
-    /** AD_Table_ID=1000021 */
+    /** AD_Table_ID=53224 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -85,7 +85,7 @@ public interface I_AD_Browse
 	  */
 	public int getAD_Process_ID();
 
-	public I_AD_Process getAD_Process() throws RuntimeException;
+	public org.compiere.model.I_AD_Process getAD_Process() throws RuntimeException;
 
     /** Column name AD_View_ID */
     public static final String COLUMNNAME_AD_View_ID = "AD_View_ID";
@@ -101,6 +101,19 @@ public interface I_AD_Browse
 	public int getAD_View_ID();
 
 	public org.adempiere.model.I_AD_View getAD_View() throws RuntimeException;
+
+    /** Column name AccessLevel */
+    public static final String COLUMNNAME_AccessLevel = "AccessLevel";
+
+	/** Set Data Access Level.
+	  * Access Level required
+	  */
+	public void setAccessLevel (String AccessLevel);
+
+	/** Get Data Access Level.
+	  * Access Level required
+	  */
+	public String getAccessLevel();
 
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";

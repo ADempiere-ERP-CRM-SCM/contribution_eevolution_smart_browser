@@ -24,14 +24,14 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_Browse
  *  @author Adempiere (generated) 
- *  @version Release 3.5.3a - $Id$ */
+ *  @version Release 3.6.0LTS - $Id$ */
 public class X_AD_Browse extends PO implements I_AD_Browse, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20081221L;
+	private static final long serialVersionUID = 20110307L;
 
     /** Standard Constructor */
     public X_AD_Browse (Properties ctx, int AD_Browse_ID, String trxName)
@@ -41,6 +41,8 @@ public class X_AD_Browse extends PO implements I_AD_Browse, I_Persistent
         {
 			setAD_Browse_ID (0);
 			setAD_View_ID (0);
+			setAccessLevel (null);
+// 3
 			setEntityType (null);
 			setName (null);
         } */
@@ -94,9 +96,9 @@ public class X_AD_Browse extends PO implements I_AD_Browse, I_Persistent
 		return ii.intValue();
 	}
 
-	public I_AD_Process getAD_Process() throws RuntimeException
+	public org.compiere.model.I_AD_Process getAD_Process() throws RuntimeException
     {
-		return (I_AD_Process)MTable.get(getCtx(), I_AD_Process.Table_Name)
+		return (org.compiere.model.I_AD_Process)MTable.get(getCtx(), org.compiere.model.I_AD_Process.Table_Name)
 			.getPO(getAD_Process_ID(), get_TrxName());	}
 
 	/** Set Process.
@@ -148,6 +150,38 @@ public class X_AD_Browse extends PO implements I_AD_Browse, I_Persistent
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	/** AccessLevel AD_Reference_ID=5 */
+	public static final int ACCESSLEVEL_AD_Reference_ID=5;
+	/** Organization = 1 */
+	public static final String ACCESSLEVEL_Organization = "1";
+	/** Client+Organization = 3 */
+	public static final String ACCESSLEVEL_ClientPlusOrganization = "3";
+	/** System only = 4 */
+	public static final String ACCESSLEVEL_SystemOnly = "4";
+	/** All = 7 */
+	public static final String ACCESSLEVEL_All = "7";
+	/** System+Client = 6 */
+	public static final String ACCESSLEVEL_SystemPlusClient = "6";
+	/** Client only = 2 */
+	public static final String ACCESSLEVEL_ClientOnly = "2";
+	/** Set Data Access Level.
+		@param AccessLevel 
+		Access Level required
+	  */
+	public void setAccessLevel (String AccessLevel)
+	{
+
+		set_Value (COLUMNNAME_AccessLevel, AccessLevel);
+	}
+
+	/** Get Data Access Level.
+		@return Access Level required
+	  */
+	public String getAccessLevel () 
+	{
+		return (String)get_Value(COLUMNNAME_AccessLevel);
 	}
 
 	/** Set Description.

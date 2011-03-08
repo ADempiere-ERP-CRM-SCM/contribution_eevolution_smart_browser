@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for AD_View_Column
  *  @author Adempiere (generated) 
- *  @version Release 3.5.3a
+ *  @version Release 3.6.0LTS
  */
 public interface I_AD_View_Column 
 {
@@ -31,7 +31,7 @@ public interface I_AD_View_Column
     /** TableName=AD_View_Column */
     public static final String Table_Name = "AD_View_Column";
 
-    /** AD_Table_ID=1000018 */
+    /** AD_Table_ID=53232 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -63,7 +63,7 @@ public interface I_AD_View_Column
 	  */
 	public int getAD_Column_ID();
 
-	public I_AD_Column getAD_Column() throws RuntimeException;
+	public org.compiere.model.I_AD_Column getAD_Column() throws RuntimeException;
 
     /** Column name AD_Org_ID */
     public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";

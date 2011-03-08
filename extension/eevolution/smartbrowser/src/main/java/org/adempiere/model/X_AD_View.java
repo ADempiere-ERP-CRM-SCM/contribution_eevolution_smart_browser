@@ -24,14 +24,14 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_View
  *  @author Adempiere (generated) 
- *  @version Release 3.5.3a - $Id$ */
+ *  @version Release 3.6.0LTS - $Id$ */
 public class X_AD_View extends PO implements I_AD_View, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20081221L;
+	private static final long serialVersionUID = 20110307L;
 
     /** Standard Constructor */
     public X_AD_View (Properties ctx, int AD_View_ID, String trxName)

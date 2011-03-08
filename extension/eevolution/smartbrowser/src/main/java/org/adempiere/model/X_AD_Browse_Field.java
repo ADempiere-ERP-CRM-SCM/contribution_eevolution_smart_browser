@@ -24,14 +24,14 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_Browse_Field
  *  @author Adempiere (generated) 
- *  @version Release 3.5.3a - $Id$ */
+ *  @version Release 3.6.0LTS - $Id$ */
 public class X_AD_Browse_Field extends PO implements I_AD_Browse_Field, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20081221L;
+	private static final long serialVersionUID = 20110307L;
 
     /** Standard Constructor */
     public X_AD_Browse_Field (Properties ctx, int AD_Browse_Field_ID, String trxName)
@@ -76,8 +76,8 @@ public class X_AD_Browse_Field extends PO implements I_AD_Browse_Field, I_Persis
       return sb.toString();
     }
 
-	/** Set Browse Field.
-		@param AD_Browse_Field_ID Browse Field	  */
+	/** Set Smart Browse Fields ID.
+		@param AD_Browse_Field_ID Smart Browse Fields ID	  */
 	public void setAD_Browse_Field_ID (int AD_Browse_Field_ID)
 	{
 		if (AD_Browse_Field_ID < 1) 
@@ -86,8 +86,8 @@ public class X_AD_Browse_Field extends PO implements I_AD_Browse_Field, I_Persis
 			set_ValueNoCheck (COLUMNNAME_AD_Browse_Field_ID, Integer.valueOf(AD_Browse_Field_ID));
 	}
 
-	/** Get Browse Field.
-		@return Browse Field	  */
+	/** Get Smart Browse Fields ID.
+		@return Smart Browse Fields ID	  */
 	public int getAD_Browse_Field_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_Browse_Field_ID);
@@ -121,9 +121,9 @@ public class X_AD_Browse_Field extends PO implements I_AD_Browse_Field, I_Persis
 		return ii.intValue();
 	}
 
-	public I_AD_Element getAD_Element() throws RuntimeException
+	public org.compiere.model.I_AD_Element getAD_Element() throws RuntimeException
     {
-		return (I_AD_Element)MTable.get(getCtx(), I_AD_Element.Table_Name)
+		return (org.compiere.model.I_AD_Element)MTable.get(getCtx(), org.compiere.model.I_AD_Element.Table_Name)
 			.getPO(getAD_Element_ID(), get_TrxName());	}
 
 	/** Set System Element.
@@ -149,9 +149,9 @@ public class X_AD_Browse_Field extends PO implements I_AD_Browse_Field, I_Persis
 		return ii.intValue();
 	}
 
-	public I_AD_Reference getAD_Reference() throws RuntimeException
+	public org.compiere.model.I_AD_Reference getAD_Reference() throws RuntimeException
     {
-		return (I_AD_Reference)MTable.get(getCtx(), I_AD_Reference.Table_Name)
+		return (org.compiere.model.I_AD_Reference)MTable.get(getCtx(), org.compiere.model.I_AD_Reference.Table_Name)
 			.getPO(getAD_Reference_ID(), get_TrxName());	}
 
 	/** Set Reference.
@@ -177,9 +177,9 @@ public class X_AD_Browse_Field extends PO implements I_AD_Browse_Field, I_Persis
 		return ii.intValue();
 	}
 
-	public I_AD_Reference getAD_Reference_Value() throws RuntimeException
+	public org.compiere.model.I_AD_Reference getAD_Reference_Value() throws RuntimeException
     {
-		return (I_AD_Reference)MTable.get(getCtx(), I_AD_Reference.Table_Name)
+		return (org.compiere.model.I_AD_Reference)MTable.get(getCtx(), org.compiere.model.I_AD_Reference.Table_Name)
 			.getPO(getAD_Reference_Value_ID(), get_TrxName());	}
 
 	/** Set Reference Key.

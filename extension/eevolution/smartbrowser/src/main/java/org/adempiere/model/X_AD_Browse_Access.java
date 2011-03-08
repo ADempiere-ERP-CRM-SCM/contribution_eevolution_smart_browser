@@ -23,14 +23,14 @@ import org.compiere.model.*;
 
 /** Generated Model for AD_Browse_Access
  *  @author Adempiere (generated) 
- *  @version Release 3.5.3a - $Id$ */
+ *  @version Release 3.6.0LTS - $Id$ */
 public class X_AD_Browse_Access extends PO implements I_AD_Browse_Access, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20081221L;
+	private static final long serialVersionUID = 20110307L;
 
     /** Standard Constructor */
     public X_AD_Browse_Access (Properties ctx, int AD_Browse_Access_ID, String trxName)
@@ -97,9 +97,9 @@ public class X_AD_Browse_Access extends PO implements I_AD_Browse_Access, I_Pers
 		return ii.intValue();
 	}
 
-	public I_AD_Role getAD_Role() throws RuntimeException
+	public org.compiere.model.I_AD_Role getAD_Role() throws RuntimeException
     {
-		return (I_AD_Role)MTable.get(getCtx(), I_AD_Role.Table_Name)
+		return (org.compiere.model.I_AD_Role)MTable.get(getCtx(), org.compiere.model.I_AD_Role.Table_Name)
 			.getPO(getAD_Role_ID(), get_TrxName());	}
 
 	/** Set Role.

@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for AD_View_Definition
  *  @author Adempiere (generated) 
- *  @version Release 3.5.3a
+ *  @version Release 3.6.0LTS
  */
 public interface I_AD_View_Definition 
 {
@@ -31,7 +31,7 @@ public interface I_AD_View_Definition
     /** TableName=AD_View_Definition */
     public static final String Table_Name = "AD_View_Definition";
 
-    /** AD_Table_ID=1000017 */
+    /** AD_Table_ID=53231 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -76,19 +76,15 @@ public interface I_AD_View_Definition
 	  */
 	public int getAD_Table_ID();
 
-	public I_AD_Table getAD_Table() throws RuntimeException;
+	public org.compiere.model.I_AD_Table getAD_Table() throws RuntimeException;
 
     /** Column name AD_View_Definition_ID */
     public static final String COLUMNNAME_AD_View_Definition_ID = "AD_View_Definition_ID";
 
-	/** Set View Definition.
-	  * The View Definition allow defined the tables for a view.
-	  */
+	/** Set View Definition ID	  */
 	public void setAD_View_Definition_ID (int AD_View_Definition_ID);
 
-	/** Get View Definition.
-	  * The View Definition allow defined the tables for a view.
-	  */
+	/** Get View Definition ID	  */
 	public int getAD_View_Definition_ID();
 
     /** Column name AD_View_ID */

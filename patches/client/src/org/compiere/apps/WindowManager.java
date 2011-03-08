@@ -129,13 +129,14 @@ public class WindowManager {
 	}
 	
 	public VBrowser findBrowse(int AD_Browse_ID) {
-		/*for ( CFrame w : windows ) {
-			if ( w instanceof VBrowser ) {
-				VBrowser ff = (VBrowser)w;
+		for ( CFrame w : windows ) {
+			
+			/*if ( w instanceof VBrowser ) {
+				Browser ff = (VBrowser)w;
 				if ( ff.getAD_Browse_ID() == AD_Browse_ID )
 					return ff;
-			}
-		}*/
+			}*/
+		}
 		return null;
 	}
 }

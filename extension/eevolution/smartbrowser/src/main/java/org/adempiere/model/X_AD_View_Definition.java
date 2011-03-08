@@ -24,14 +24,14 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_View_Definition
  *  @author Adempiere (generated) 
- *  @version Release 3.5.3a - $Id$ */
+ *  @version Release 3.6.0LTS - $Id$ */
 public class X_AD_View_Definition extends PO implements I_AD_View_Definition, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20081221L;
+	private static final long serialVersionUID = 20110307L;
 
     /** Standard Constructor */
     public X_AD_View_Definition (Properties ctx, int AD_View_Definition_ID, String trxName)
@@ -72,9 +72,9 @@ public class X_AD_View_Definition extends PO implements I_AD_View_Definition, I_
       return sb.toString();
     }
 
-	public I_AD_Table getAD_Table() throws RuntimeException
+	public org.compiere.model.I_AD_Table getAD_Table() throws RuntimeException
     {
-		return (I_AD_Table)MTable.get(getCtx(), I_AD_Table.Table_Name)
+		return (org.compiere.model.I_AD_Table)MTable.get(getCtx(), org.compiere.model.I_AD_Table.Table_Name)
 			.getPO(getAD_Table_ID(), get_TrxName());	}
 
 	/** Set Table.
@@ -108,10 +108,8 @@ public class X_AD_View_Definition extends PO implements I_AD_View_Definition, I_
         return new KeyNamePair(get_ID(), String.valueOf(getAD_Table_ID()));
     }
 
-	/** Set View Definition.
-		@param AD_View_Definition_ID 
-		The View Definition allow defined the tables for a view.
-	  */
+	/** Set View Definition ID.
+		@param AD_View_Definition_ID View Definition ID	  */
 	public void setAD_View_Definition_ID (int AD_View_Definition_ID)
 	{
 		if (AD_View_Definition_ID < 1) 
@@ -120,9 +118,8 @@ public class X_AD_View_Definition extends PO implements I_AD_View_Definition, I_
 			set_ValueNoCheck (COLUMNNAME_AD_View_Definition_ID, Integer.valueOf(AD_View_Definition_ID));
 	}
 
-	/** Get View Definition.
-		@return The View Definition allow defined the tables for a view.
-	  */
+	/** Get View Definition ID.
+		@return View Definition ID	  */
 	public int getAD_View_Definition_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_View_Definition_ID);
@@ -143,9 +140,9 @@ public class X_AD_View_Definition extends PO implements I_AD_View_Definition, I_
 	public void setAD_View_ID (int AD_View_ID)
 	{
 		if (AD_View_ID < 1) 
-			set_Value (COLUMNNAME_AD_View_ID, null);
+			set_ValueNoCheck (COLUMNNAME_AD_View_ID, null);
 		else 
-			set_Value (COLUMNNAME_AD_View_ID, Integer.valueOf(AD_View_ID));
+			set_ValueNoCheck (COLUMNNAME_AD_View_ID, Integer.valueOf(AD_View_ID));
 	}
 
 	/** Get View.

@@ -15,8 +15,6 @@ package org.adempiere.webui.desktop;
 
 import java.util.List;
 
-import javax.swing.SwingUtilities;
-
 import org.adempiere.model.MBrowse;
 import org.adempiere.webui.apps.ProcessDialog;
 import org.adempiere.webui.apps.wf.WFPanel;
@@ -24,21 +22,16 @@ import org.adempiere.webui.component.DesktopTabpanel;
 import org.adempiere.webui.component.Tabbox;
 import org.adempiere.webui.component.Tabpanel;
 import org.adempiere.webui.component.Window;
-import org.adempiere.webui.exception.ApplicationException;
 import org.adempiere.webui.panel.ADForm;
 import org.adempiere.webui.panel.CustomForm;
 import org.adempiere.webui.part.WindowContainer;
 import org.adempiere.webui.window.ADWindow;
 import org.adempiere.webui.window.WTask;
-import org.compiere.apps.AEnv;
 import org.compiere.model.MQuery;
 import org.compiere.model.MTask;
-import org.compiere.swing.CFrame;
 import org.compiere.util.Env;
-import org.compiere.util.Ini;
 import org.compiere.util.WebDoc;
 import org.compiere.wf.MWorkflow;
-import org.eevolution.form.Browser;
 import org.eevolution.form.WBrowser;
 import org.zkoss.util.media.AMedia;
 import org.zkoss.zk.ui.Component;
@@ -97,7 +90,6 @@ public abstract class TabbedDesktop extends AbstractDesktop {
 		return form;
 	}
 	
-	//BEGIN AJC E-EVOLUTION 22 NOV 2010
 	public void openSmartBrowser(int AD_Browse_ID)
 	{
 		
@@ -117,7 +109,6 @@ public abstract class TabbedDesktop extends AbstractDesktop {
         windowContainer.addWindow(tabPanel, "Browse", true);
 		
 	}
-	//END AJC E-EVOLUTION 22 NOV 2010
 
 	/**
 	 *

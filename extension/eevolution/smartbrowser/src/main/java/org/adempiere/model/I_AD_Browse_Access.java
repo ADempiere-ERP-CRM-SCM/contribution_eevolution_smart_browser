@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for AD_Browse_Access
  *  @author Adempiere (generated) 
- *  @version Release 3.5.3a
+ *  @version Release 3.6.0LTS
  */
 public interface I_AD_Browse_Access 
 {
@@ -31,7 +31,7 @@ public interface I_AD_Browse_Access
     /** TableName=AD_Browse_Access */
     public static final String Table_Name = "AD_Browse_Access";
 
-    /** AD_Table_ID=1000026 */
+    /** AD_Table_ID=53225 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -87,7 +87,7 @@ public interface I_AD_Browse_Access
 	  */
 	public int getAD_Role_ID();
 
-	public I_AD_Role getAD_Role() throws RuntimeException;
+	public org.compiere.model.I_AD_Role getAD_Role() throws RuntimeException;
 
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";

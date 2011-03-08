@@ -23,9 +23,6 @@ import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
 import org.compiere.model.I_AD_Column;
 import org.compiere.model.MColumn;
-import org.compiere.model.MTable;
-import org.compiere.model.M_Element;
-import org.compiere.util.DisplayType;
 
 /**
  * Cost Collector Callout

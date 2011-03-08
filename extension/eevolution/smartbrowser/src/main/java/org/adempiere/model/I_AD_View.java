@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for AD_View
  *  @author Adempiere (generated) 
- *  @version Release 3.5.3a
+ *  @version Release 3.6.0LTS
  */
 public interface I_AD_View 
 {
@@ -31,7 +31,7 @@ public interface I_AD_View
     /** TableName=AD_View */
     public static final String Table_Name = "AD_View";
 
-    /** AD_Table_ID=1000016 */
+    /** AD_Table_ID=53230 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);

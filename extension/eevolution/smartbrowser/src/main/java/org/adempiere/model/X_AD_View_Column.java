@@ -24,14 +24,14 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_View_Column
  *  @author Adempiere (generated) 
- *  @version Release 3.5.3a - $Id$ */
+ *  @version Release 3.6.0LTS - $Id$ */
 public class X_AD_View_Column extends PO implements I_AD_View_Column, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20081221L;
+	private static final long serialVersionUID = 20110307L;
 
     /** Standard Constructor */
     public X_AD_View_Column (Properties ctx, int AD_View_Column_ID, String trxName)
@@ -73,9 +73,9 @@ public class X_AD_View_Column extends PO implements I_AD_View_Column, I_Persiste
       return sb.toString();
     }
 
-	public I_AD_Column getAD_Column() throws RuntimeException
+	public org.compiere.model.I_AD_Column getAD_Column() throws RuntimeException
     {
-		return (I_AD_Column)MTable.get(getCtx(), I_AD_Column.Table_Name)
+		return (org.compiere.model.I_AD_Column)MTable.get(getCtx(), org.compiere.model.I_AD_Column.Table_Name)
 			.getPO(getAD_Column_ID(), get_TrxName());	}
 
 	/** Set Column.
