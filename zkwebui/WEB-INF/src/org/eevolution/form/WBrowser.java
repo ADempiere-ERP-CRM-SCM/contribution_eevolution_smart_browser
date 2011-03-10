@@ -34,7 +34,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-
 import org.adempiere.model.MBrowse;
 import org.adempiere.model.MBrowseField;
 import org.adempiere.webui.apps.ProcessParameterPanel;
@@ -51,6 +50,7 @@ import org.adempiere.webui.component.Tabpanel;
 import org.adempiere.webui.component.Tabpanels;
 import org.adempiere.webui.component.Tabs;
 import org.adempiere.webui.component.ToolBar;
+import org.adempiere.webui.component.WAppsAction;
 import org.adempiere.webui.component.WListbox;
 import org.adempiere.webui.editor.WDateEditor;
 import org.adempiere.webui.editor.WNumberEditor;
@@ -103,6 +103,7 @@ public class WBrowser extends Browser implements IFormController,
 	private Button bPrint;
 	private Button bSearch;
 	private Button bZoom;
+	private Button bSelectAll;
 
 	private WListbox detail;
 	private Borderlayout graphPanel;
@@ -115,8 +116,10 @@ public class WBrowser extends Browser implements IFormController,
 
 	public WBrowser(boolean modal, int WindowNo, String value, MBrowse browse,
 			String keyColumn, boolean multiSelection, String whereClause) {
+		
 		super(modal, WindowNo, value, browse, keyColumn, multiSelection,
 				whereClause);
+		
 		m_frame = new CustomForm();
 
 		// m_frame.setTitle(m_Browse.getName());
@@ -124,7 +127,7 @@ public class WBrowser extends Browser implements IFormController,
 		initComponents();
 		statInit();
 		p_loadedOK = initBrowser();
-
+		detail.setMultiSelection(true);
 		int no = detail.getRowCount();
 		setStatusLine(
 				Integer.toString(no) + " "
@@ -461,14 +464,27 @@ public class WBrowser extends Browser implements IFormController,
 
 	private void setupToolBar() {
 
-		bOk = new Button(ConfirmPanel.A_OK);
-		bCancel = new Button(ConfirmPanel.A_CANCEL);
-		toolsBar = new ToolBar();
-		bPrint = new Button(ConfirmPanel.A_PRINT);
-		bZoom = new Button(ConfirmPanel.A_ZOOM);
-		bExport = new Button(ConfirmPanel.A_EXPORT);
-		bDelete = new Button(ConfirmPanel.A_DELETE);
-		bFind = new Button("Find");
+		try{
+			toolsBar = new ToolBar();
+			WAppsAction selectAllAction = new WAppsAction (ConfirmPanel.A_OK, null, ConfirmPanel.A_OK);
+			bOk = selectAllAction.getButton();
+			selectAllAction = new WAppsAction (ConfirmPanel.A_CANCEL, null, ConfirmPanel.A_CANCEL);
+			bCancel = selectAllAction.getButton();
+			selectAllAction = new WAppsAction (ConfirmPanel.A_PRINT, null, ConfirmPanel.A_PRINT);
+			bPrint = selectAllAction.getButton();
+			selectAllAction = new WAppsAction (ConfirmPanel.A_ZOOM, null, ConfirmPanel.A_ZOOM);
+			bZoom = selectAllAction.getButton();
+			selectAllAction = new WAppsAction (ConfirmPanel.A_EXPORT, null, ConfirmPanel.A_EXPORT);
+			bExport =  selectAllAction.getButton();
+			selectAllAction = new WAppsAction (ConfirmPanel.A_DELETE, null, ConfirmPanel.A_DELETE);
+			bDelete = selectAllAction.getButton();
+			selectAllAction = new WAppsAction ("Find", null, "Find");
+			bFind = selectAllAction.getButton();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	private void initComponents() {
@@ -536,6 +552,45 @@ public class WBrowser extends Browser implements IFormController,
 			}
 		});
 		toolsBar.appendChild(bFind);
+		
+		try{
+			WAppsAction selectAllAction = new WAppsAction ("SelectAll", null, "Select All");
+			bSelectAll = selectAllAction.getButton();
+			bSelectAll.setLabel("Select All");
+
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+
+		toolsBar.appendChild(bSelectAll);
+
+		bSelectAll.addActionListener(new EventListener(){
+        	public void onEvent(Event evt){
+        		if(detail.getRowCount()>0)
+        		{
+        			if(!isAllSelected)
+        			{
+        				int size = detail.getRowCount();
+        			
+	        			int selectedList[] = new int[size];
+	        			
+		        		
+	        			for(int x = 0; x<= detail.getRowCount() -1; x++)
+		        		{
+		        			selectedList[x] = x;
+		        		}
+		        		detail.setSelectedIndices(selectedList);
+        			}
+        			else
+        			{
+        				detail.clearSelection();
+        			}
+        			
+        			isAllSelected = !isAllSelected;
+        		}
+        	}
+        });
 
 		m_frame.setWidth("100%");
 		m_frame.setHeight("100%");
@@ -570,6 +625,7 @@ public class WBrowser extends Browser implements IFormController,
 			}
 		});
 
+
 		North sNorth = new North();
 
 		Vbox vbox = new Vbox();
@@ -577,6 +633,7 @@ public class WBrowser extends Browser implements IFormController,
 		vbox.appendChild(bSearch);
 		vbox.setAlign("center");
 		vbox.setStyle("background-color: transparent");
+
 
 		sNorth.setFlex(true);
 		sNorth.appendChild(vbox);

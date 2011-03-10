@@ -36,6 +36,7 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
@@ -50,13 +51,17 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.TableModel;
 
 import org.adempiere.model.MBrowse;
 import org.adempiere.model.MBrowseField;
@@ -89,6 +94,7 @@ import org.compiere.model.MProcess;
 import org.compiere.model.MRole;
 import org.compiere.model.M_Element;
 import org.compiere.process.ProcessInfo;
+import org.compiere.swing.CButton;
 import org.compiere.swing.CFrame;
 import org.compiere.swing.CLabel;
 import org.compiere.util.ASyncProcess;
@@ -520,40 +526,6 @@ public class VBrowser extends Browser implements ActionListener, VetoableChangeL
 		list.toArray(m_generalLayout);
 		return true;
 	}	//	initInfoTable
-
-
-	/**************************************************************************
-	 *	Construct SQL Where Clause and define parameters.
-	 *  (setParameters needs to set parameters)
-	 *  Includes first AND
-	 * 	@return where clause
-	 */
-	/*protected String getSQLWhere()
-	{
-		// BEGIN AJC E-EVOLUTION 21 OCT 2010
-		//StringBuffer sql = new StringBuffer(" AND " + m_Browse.getWhereClause());
-		StringBuffer sql = new StringBuffer(m_Browse.getWhereClause()==null ? "" : " AND " + m_Browse.getWhereClause());
-		//END AJC E-EVOLUTION 21 OCT 2010
-		
-		if(getParameters().size() > 0)
-		{
-			sql.append(" AND ");
-		}
-		
-		Iterator <String> parameters = getParameters().iterator();
-		while(parameters.hasNext())
-		{
-			String parameter = parameters.next();
-			MBrowseField field = m_Browse.getField(parameter);
-			MViewColumn column = field.getAD_View_Column();
-			sql.append(column.getColumnSQL()).append("=? ");
-			if(parameters.hasNext())
-			{	
-				sql.append(" AND ");
-			}
-		}
-		return sql.toString();
-	}*/	//	getSQLWhere
 	
 	/**
 	 * set Parameteres and Values
@@ -1046,15 +1018,15 @@ public class VBrowser extends Browser implements ActionListener, VetoableChangeL
         bCancel = new javax.swing.JButton(a);
         toolsBar = new javax.swing.JToolBar();
         a = new AppsAction(ConfirmPanel.A_PRINT, null, ConfirmPanel.A_PRINT);
-        bPrint = new javax.swing.JToggleButton(a);
+        bPrint = new javax.swing.JButton(a);
         a = new AppsAction(ConfirmPanel.A_ZOOM, null, ConfirmPanel.A_ZOOM);
         bZoom = new javax.swing.JToggleButton(a);
         a = new AppsAction(ConfirmPanel.A_EXPORT, null, ConfirmPanel.A_EXPORT); 
-        bExport = new javax.swing.JToggleButton(a);
+        bExport = new javax.swing.JButton(a);
         a = new AppsAction(ConfirmPanel.A_DELETE, null, ConfirmPanel.A_DELETE);
-        bDelete = new javax.swing.JToggleButton(a);
+        bDelete = new javax.swing.JButton(a);
         a = new AppsAction("Find", null, "Find"); 
-        bFind = new javax.swing.JToggleButton(a);
+        bFind = new javax.swing.JButton(a);
 
 
         
@@ -1069,11 +1041,11 @@ public class VBrowser extends Browser implements ActionListener, VetoableChangeL
     private void initComponents() {
 
         toolsBar = new javax.swing.JToolBar();
-        bPrint = new javax.swing.JToggleButton();
+        bPrint = new javax.swing.JButton();
         bZoom = new javax.swing.JToggleButton();
-        bExport = new javax.swing.JToggleButton();
-        bDelete = new javax.swing.JToggleButton();
-        bFind = new javax.swing.JToggleButton();
+        bExport = new javax.swing.JButton();
+        bDelete = new javax.swing.JButton();
+        bFind = new javax.swing.JButton();
         tabsPanel = new javax.swing.JTabbedPane();
         searchTab = new javax.swing.JPanel();
         topPanel = new javax.swing.JPanel();
@@ -1147,6 +1119,29 @@ public class VBrowser extends Browser implements ActionListener, VetoableChangeL
             }
         });
         toolsBar.add(bFind);
+        
+    	AppsAction selectAllAction = new AppsAction ("SelectAll", null, "Select All");
+    	JButton bSelectAll = new JButton(selectAllAction);
+    	bSelectAll.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        bSelectAll.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+     
+        bSelectAll.addActionListener(new java.awt.event.ActionListener(){
+        	public void actionPerformed(java.awt.event.ActionEvent evt)
+        	{
+        		if(!isAllSelected)
+        		{	
+        			ListSelectionModel selectionModel = detail.getSelectionModel();
+        			selectionModel.setSelectionInterval(0, detail.getRowCount()-1);
+        		}
+        		else
+        		{
+        			detail.clearSelection();
+        		}
+        		isAllSelected = !isAllSelected;
+        	}
+        });
+        
+        toolsBar.add(bSelectAll);
 
         m_frame.getContentPane().add(toolsBar, java.awt.BorderLayout.PAGE_START);
 
@@ -1163,8 +1158,10 @@ public class VBrowser extends Browser implements ActionListener, VetoableChangeL
                 bSearchActionPerformed(evt);
             }
         });
+        
         buttonSearchPanel.add(bSearch);
-
+        
+        
         topPanel.add(buttonSearchPanel, java.awt.BorderLayout.CENTER);
 
         searchTab.add(topPanel, java.awt.BorderLayout.NORTH);
@@ -1254,11 +1251,11 @@ public class VBrowser extends Browser implements ActionListener, VetoableChangeL
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bCancel;
-    private javax.swing.JToggleButton bDelete;
-    private javax.swing.JToggleButton bExport;
-    private javax.swing.JToggleButton bFind;
+    private javax.swing.JButton bDelete;
+    private javax.swing.JButton bExport;
+    private javax.swing.JButton bFind;
     private javax.swing.JButton bOk;
-    private javax.swing.JToggleButton bPrint;
+    private javax.swing.JButton bPrint;
     private javax.swing.JButton bSearch;
     private javax.swing.JToggleButton bZoom;
     private javax.swing.JPanel buttonSearchPanel;

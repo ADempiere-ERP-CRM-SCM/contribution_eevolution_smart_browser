@@ -1,7 +1,5 @@
 package org.eevolution.form;
 
-
-import java.awt.Dimension;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,7 +14,6 @@ import org.adempiere.model.MBrowse;
 import org.adempiere.model.MBrowseField;
 import org.adempiere.model.MView;
 import org.adempiere.model.MViewColumn;
-
 import org.compiere.apps.search.Info_Column;
 import org.compiere.minigrid.IDColumn;
 import org.compiere.model.MLookup;
@@ -93,6 +90,7 @@ public abstract class Browser {
 	public String			p_whereClause = "";
 	/** Window Width                */
 	public static final int        INFO_WIDTH = 800;
+	public boolean isAllSelected = false;
 	
 	public Browser(boolean modal, int WindowNo, String value,
 			MBrowse browse, String keyColumn,
@@ -382,5 +380,4 @@ public abstract class Browser {
 	{
 		 return m_Browse.getAD_Browse_ID();
 	}
-	
 }
