@@ -111,10 +111,11 @@ public class ProcessParameterPanel extends CPanel implements VetoableChangeListe
 		 *  @throws Exception
 		 */
 		void jbInit() throws Exception
-		{
+		{	
+			setMode(MODE_VERTICAL);
 			this.setLayout(mainLayout);
 			centerPanel.setLayout(centerLayout);
-			this.add(centerPanel, BorderLayout.CENTER);
+			this.add(centerPanel, BorderLayout.CENTER);			
 		}	//	jbInit
 
 		/**
@@ -160,7 +161,7 @@ public class ProcessParameterPanel extends CPanel implements VetoableChangeListe
 			String ASPFilter = "";
 			if (client.isUseASP())
 				ASPFilter =
-					  "   AND (   AD_Process_Para_ID IN ( "
+					  "   AND (   p.AD_Process_Para_ID IN ( "
 					// Just ASP subscribed process parameters for client "
 					+ "              SELECT pp.AD_Process_Para_ID "
 					+ "                FROM ASP_Process_Para pp, ASP_Process p, ASP_Level l, ASP_ClientLevel cl "
@@ -173,7 +174,7 @@ public class ProcessParameterPanel extends CPanel implements VetoableChangeListe
 					+ "                 AND l.IsActive = 'Y' "
 					+ "                 AND cl.IsActive = 'Y' "
 					+ "                 AND pp.ASP_Status = 'S') " // Show
-					+ "        OR AD_Process_Para_ID IN ( "
+					+ "        OR p.AD_Process_Para_ID IN ( "
 					// + show ASP exceptions for client
 					+ "              SELECT AD_Process_Para_ID "
 					+ "                FROM ASP_ClientException ce "
@@ -184,7 +185,7 @@ public class ProcessParameterPanel extends CPanel implements VetoableChangeListe
 					+ "                 AND ce.AD_Field_ID IS NULL "
 					+ "                 AND ce.ASP_Status = 'S') " // Show
 					+ "       ) "
-					+ "   AND AD_Process_Para_ID NOT IN ( "
+					+ "   AND p.AD_Process_Para_ID NOT IN ( "
 					// minus hide ASP exceptions for client
 					+ "          SELECT AD_Process_Para_ID "
 					+ "            FROM ASP_ClientException ce "
@@ -435,7 +436,6 @@ public class ProcessParameterPanel extends CPanel implements VetoableChangeListe
 				m_vEditors2.add (null);
 			}
 		}	//	createField
-		
 		
 		/**
 		 *	Editor Listener
