@@ -72,7 +72,8 @@
     <javac srcdir="${src}:${patchesBase}:${patchesClient}" destdir="${build}">
       <classpath refid="lib.class.path"/>
       <include name="**/org/adempiere/model/*.java"/>  
-    	<include name="**/org/compiere/model/*.java"/>  	
+      <include name="**/org/compiere/model/*.java"/>  	
+      <include name="**/org/compiere/apps/*.java"/>
       <include name="**/org/eevolution/form/*.java"/>
       <include name="**/org/eevolution/process/*.java"/>    	
     </javac>
@@ -115,7 +116,7 @@
 	        description="compile the source " >
 	    <mkdir dir="${zkclasses}"/>
 	    <!-- Compile the zk java code from ${src} into ${zkclasses} -->
-	    <javac srcdir="${zksrc}" destdir="${zkclasses}">
+	    <javac srcdir="${zksrc}:${zkPatches}" destdir="${zkclasses}">
 	      <classpath refid="compile.class.path"/>
 	    </javac>
  </target>	
