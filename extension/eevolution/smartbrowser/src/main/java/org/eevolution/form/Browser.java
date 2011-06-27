@@ -204,11 +204,8 @@ public abstract class Browser {
 	
 	public String getSQLWhere()
 	{
-		// BEGIN AJC E-EVOLUTION 21 OCT 2010
-		//StringBuffer sql = new StringBuffer(" AND " + m_Browse.getWhereClause());
-		StringBuffer sql = new StringBuffer(m_Browse.getWhereClause()==null ? "" : " AND " + m_Browse.getWhereClause());
-		//END AJC E-EVOLUTION 21 OCT 2010
-		
+
+		StringBuffer sql = new StringBuffer(m_Browse.getWhereClause()==null ? "" : " AND " + m_Browse.getWhereClause());		
 		if(getParameters().size() > 0)
 		{
 			sql.append(" AND ");
@@ -219,9 +216,24 @@ public abstract class Browser {
 		{
 			String parameter = parameters.next();
 			MBrowseField field = m_Browse.getField(parameter);
-			MViewColumn column = field.getAD_View_Column();
-			sql.append(column.getColumnSQL()).append("=? ");
-			if(parameters.hasNext())
+			if(field!=null)
+			{
+				if(field.isRange())
+				{
+					MViewColumn column = field.getAD_View_Column();
+					sql.append(column.getColumnSQL()).append(" BETWEEN ? AND ? ");
+				}
+				else
+				{
+					MViewColumn column = field.getAD_View_Column();
+					sql.append(column.getColumnSQL()).append("=? ");
+					if(parameters.hasNext())
+					{	
+						sql.append(" AND ");
+					}
+				}
+			}
+			else if(parameters.hasNext())
 			{	
 				sql.append(" AND ");
 			}

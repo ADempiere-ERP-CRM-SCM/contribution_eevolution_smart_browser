@@ -36,7 +36,6 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
@@ -46,14 +45,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Properties;
 import java.util.logging.Level;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -61,13 +57,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.TableModel;
 
 import org.adempiere.model.MBrowse;
 import org.adempiere.model.MBrowseField;
-import org.adempiere.model.MView;
-import org.adempiere.model.MViewColumn;
-import org.adempiere.plaf.AdempierePLAF;
 import org.compiere.Adempiere;
 import org.compiere.apps.ADialog;
 import org.compiere.apps.AEnv;
@@ -78,7 +70,6 @@ import org.compiere.apps.ConfirmPanel;
 import org.compiere.apps.ProcessCtl;
 import org.compiere.apps.ProcessParameterPanel;
 import org.compiere.apps.StatusBar;
-import org.compiere.apps.form.FormPanel;
 import org.compiere.apps.search.Info_Column;
 import org.compiere.grid.ed.VCheckBox;
 import org.compiere.grid.ed.VDate;
@@ -88,28 +79,22 @@ import org.compiere.grid.ed.VString;
 import org.compiere.minigrid.IDColumn;
 import org.compiere.minigrid.MiniTable;
 import org.compiere.model.MLookup;
-import org.compiere.model.MLookupFactory;
 import org.compiere.model.MPInstance;
 import org.compiere.model.MProcess;
 import org.compiere.model.MRole;
 import org.compiere.model.M_Element;
 import org.compiere.process.ProcessInfo;
-import org.compiere.swing.CButton;
 import org.compiere.swing.CFrame;
 import org.compiere.swing.CLabel;
 import org.compiere.util.ASyncProcess;
-import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Ini;
 import org.compiere.util.KeyNamePair;
-import org.compiere.util.Language;
 import org.compiere.util.Login;
 import org.compiere.util.Msg;
 import org.compiere.util.Splash;
-import org.compiere.util.Trx;
-import org.compiere.util.TrxRunnable;
 
 /**
  * UI Browser
@@ -141,25 +126,6 @@ public class VBrowser extends Browser implements ActionListener, VetoableChangeL
 		boolean multiSelection, String whereClause)
 	{
 		super(modal, WindowNo, value, browse, keyColumn, multiSelection, whereClause);
-		
-		/*  AJC EEvolution Nov 2010
-		m_Browse = browse;
-		m_View = browse.getAD_View();
-		p_WindowNo = WindowNo;
-		p_keyColumn = keyColumn;
-		p_multiSelection = multiSelection;
-		if (whereClause == null || whereClause.indexOf('@') == -1)
-			p_whereClause = whereClause;
-		else
-		{
-			p_whereClause = Env.parseContext(Env.getCtx(), p_WindowNo, whereClause, false, false);
-			if (p_whereClause.length() == 0)
-				log.log(Level.SEVERE, "Cannot parse context= " + whereClause);
-		}
-		
-		//super (frame, modal, WindowNo, tableName, keyColumn, multiSelection, whereClause);
-		log.info(m_Browse.getName() + " - " + keyColumn + " - " + whereClause);
-		*/
 		
 		m_frame.setTitle(m_Browse.getName());
 				
@@ -300,14 +266,12 @@ public class VBrowser extends Browser implements ActionListener, VetoableChangeL
 			data= new VCheckBox();
 			data.setName(name);
 			label.setLabelFor(data);
-			data.setBackground(AdempierePLAF.getInfoBackground());
 		}
 		else if (DisplayType.String== field.getAD_Reference_ID())
 		{
-			data= new VString(name, false, false, true, 30, 30, "", null);
+			data= new VString(name, field.isMandatory(), false, true, 30, 30, "", null);
 			data.setName(name);
 			label.setLabelFor(data);
-			data.setBackground(AdempierePLAF.getInfoBackground());
 		}
 		else if ( DisplayType.Number == field.getAD_Reference_ID() 
 				|| DisplayType.Quantity == field.getAD_Reference_ID()
@@ -315,10 +279,9 @@ public class VBrowser extends Browser implements ActionListener, VetoableChangeL
 				|| DisplayType.Integer == field.getAD_Reference_ID()
 				|| DisplayType.Amount == field.getAD_Reference_ID())
 		{
-			data= new VNumber(name, false, false, true, field.getAD_Reference_ID(), title);
+			data= new VNumber(name, field.isMandatory(), false, true, field.getAD_Reference_ID(), title);
 			data.setName(name);
 			label.setLabelFor(data);
-			data.setBackground(AdempierePLAF.getInfoBackground());
 		}
 		else if (DisplayType.Date== field.getAD_Reference_ID() 
 			  || DisplayType.DateTime== field.getAD_Reference_ID())
@@ -326,7 +289,6 @@ public class VBrowser extends Browser implements ActionListener, VetoableChangeL
 			data= new VDate();
 			data.setName(name);
 			label.setLabelFor(data);
-			data.setBackground(AdempierePLAF.getInfoBackground());
 		}
 		else if (	DisplayType.TableDir== field.getAD_Reference_ID() 
 				|| 	DisplayType.Table == field.getAD_Reference_ID() 
@@ -361,7 +323,6 @@ public class VBrowser extends Browser implements ActionListener, VetoableChangeL
 			
 			MLookup dataL = getMLookup(field);
 			VLookup data = new VLookup(field.getAD_View_Column().getAD_Column().getColumnName(), field.isMandatory(), false, true, dataL);
-			data.setBackground(AdempierePLAF.getInfoBackground());
 			data.addVetoableChangeListener(this);	
 			data.setName(field.getName());
 			return data;
@@ -530,49 +491,71 @@ public class VBrowser extends Browser implements ActionListener, VetoableChangeL
 	/**
 	 * set Parameteres and Values
 	 */
-	private void setParameters()
+	private boolean setParameters()
 	{			
 		/** Parameters **/
 		m_parameters = new ArrayList();
 		m_values = new ArrayList();
 		
+			StringBuffer sb = new StringBuffer("");
+			
 			for (Component c : searchPanel.getComponents())
 			{	
 				String name = c.getName();
 				if(name == null || name.startsWith("L_"))
 					continue;
 				MBrowseField field = m_Browse.getField(name);
+				if(name.endsWith("_To"))
+					field = m_Browse.getField(name.substring(0, name.indexOf("_To")));
 				if(field == null)
 					continue;
 				
-				if(field.getName().equals(name))
-				{	
+					
+					M_Element element = new M_Element(m_Browse.getCtx(),field.getAD_Element_ID(), null);
+					String title  = Msg.translate(Env.getCtx(), element.getColumnName());
+					
 					if(c instanceof VLookup)
 					{	
 						VLookup component = (VLookup) c;
 						addParameter(component.getName(), component.getValue());
+						if(field.isMandatory() && component.getValue()==null)
+							sb.append(title+", ");
+						
 						continue;
 					}	
 					if(c instanceof VString)
 					{	
 						VString component  = (VString) c;
 						addParameter(component.getName(), component.getValue());
+						if(field.isMandatory() && component.getValue()==null)
+							sb.append(title+", ");
 						continue;
 					}	
 					if(c instanceof VCheckBox)
 					{
 						VCheckBox component  = (VCheckBox) c;
 						addParameter(component.getName(), component.getValue());
+						if(field.isMandatory() && component.getValue()==null)
+							sb.append(title+", ");
 						continue;
 					}
 					if(c instanceof VDate)
 					{
 						VDate component  = (VDate) c;
 						addParameter(component.getName(), component.getValue());
+						if(field.isMandatory() && component.getValue()==null)
+							sb.append(title+", ");
 						continue;
 					}
-				}	
 			}
+			
+			if (sb.length() != 0)
+			{
+				ADialog.error(p_WindowNo, m_frame.getContentPane(), "FillMandatory", sb.toString());
+				return false;
+			}
+			
+			return true;
 	}	
 	
 	/**
@@ -664,7 +647,9 @@ public class VBrowser extends Browser implements ActionListener, VetoableChangeL
 	 */
 	protected void executeQuery()
 	{
-		setParameters();
+
+		if(!setParameters())
+			;//return;
 		//  ignore when running
 		if (m_worker != null && m_worker.isAlive())
 			return;
@@ -1130,8 +1115,22 @@ public class VBrowser extends Browser implements ActionListener, VetoableChangeL
         	{
         		if(!isAllSelected)
         		{	
+        			int topIndex = detail.getShowTotals() ? 2 : 1;
+        			
         			ListSelectionModel selectionModel = detail.getSelectionModel();
-        			selectionModel.setSelectionInterval(0, detail.getRowCount()-1);
+        			selectionModel.setSelectionInterval(0, detail.getRowCount()-topIndex);
+        			
+        			int rows = detail.getRowCount();
+                    for (int row = 0; row <= rows - topIndex; row++)
+                    {
+                        Object data = detail.getModel().getValueAt(row, m_keyColumnIndex);
+                        if (data instanceof IDColumn)
+                        {
+                            IDColumn dataColumn = (IDColumn)data;
+                            dataColumn.setSelected(true);
+                        }
+                    }
+        			
         		}
         		else
         		{

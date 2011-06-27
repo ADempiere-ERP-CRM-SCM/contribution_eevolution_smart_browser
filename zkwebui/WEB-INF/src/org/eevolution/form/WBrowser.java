@@ -34,6 +34,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
+
 import org.adempiere.model.MBrowse;
 import org.adempiere.model.MBrowseField;
 import org.adempiere.webui.apps.ProcessParameterPanel;
@@ -83,6 +84,8 @@ import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zkex.zul.Center;
 import org.zkoss.zkex.zul.North;
+import org.zkoss.zkex.zul.South;
+import org.zkoss.zul.Div;
 import org.zkoss.zul.Grid;
 import org.zkoss.zul.Hbox;
 import org.zkoss.zul.Row;
@@ -110,9 +113,10 @@ public class WBrowser extends Browser implements IFormController,
 	private Borderlayout processPanel;
 	private Grid searchPanel = GridFactory.newGridLayout();
 	private Borderlayout searchTab;
+	private Borderlayout footPanel;
 	private Tabbox tabsPanel;
 	private ToolBar toolsBar;
-	private Borderlayout topPanel;
+	private Hbox topPanel;
 
 	public WBrowser(boolean modal, int WindowNo, String value, MBrowse browse,
 			String keyColumn, boolean multiSelection, String whereClause) {
@@ -145,7 +149,6 @@ public class WBrowser extends Browser implements IFormController,
 		Row row = rows.newRow();
 
 		for (MBrowseField field : m_Browse.getCriteriaFields()) {
-
 			M_Element element = new M_Element(m_Browse.getCtx(),
 					field.getAD_Element_ID(), null);
 			String title = Msg.translate(Env.getCtx(), element.getColumnName());
@@ -243,11 +246,22 @@ public class WBrowser extends Browser implements IFormController,
 			m_pi.setAD_User_ID(Env.getAD_User_ID(Env.getCtx()));
 			m_pi.setAD_Client_ID(Env.getAD_Client_ID(Env.getCtx()));
 			parameterPanel = new ProcessParameterPanel(p_WindowNo, m_pi);
+			parameterPanel.setMode(ProcessParameterPanel.BROWSER_MODE);
 			parameterPanel.init();
 
-			Center center = new Center();
-			center.appendChild(parameterPanel);
-			processPanel.appendChild(center);
+			South south = new South();
+			south.appendChild(parameterPanel);
+			south.setCollapsible(true);
+			south.setTitle(" ");
+			
+			Div div = new Div();
+			div.setWidth("100%");
+			div.appendChild(parameterPanel);
+			south.appendChild(div);
+			
+			footPanel.appendChild(south);
+			
+			
 		}
 		return true;
 	}
@@ -497,7 +511,7 @@ public class WBrowser extends Browser implements IFormController,
 		bFind = new Button();
 		tabsPanel = new Tabbox();
 		searchTab = new Borderlayout();
-		topPanel = new Borderlayout();
+		topPanel = new Hbox();
 		searchPanel = GridFactory.newGridLayout();
 		bSearch = new Button();
 		detail = new WListbox();
@@ -505,6 +519,8 @@ public class WBrowser extends Browser implements IFormController,
 		bOk = new Button();
 		processPanel = new Borderlayout();
 		graphPanel = new Borderlayout();
+		footPanel= new Borderlayout();
+		
 
 		Borderlayout mainLayout = new Borderlayout();
 
@@ -609,14 +625,16 @@ public class WBrowser extends Browser implements IFormController,
 		searchTab.setHeight("100%");
 		searchTab.setStyle("background-color: transparent");
 
-		topPanel = new Borderlayout();
-		topPanel.setStyle("position: absolute");
+		topPanel = new Hbox();
+		topPanel.setHeight("90%");
+		topPanel.setWidth("100%");
+		//topPanel.setStyle("position: absolute");
 		topPanel.setStyle("background-color: transparent");
 
-		searchPanel = GridFactory.newGridLayout();
+		//searchPanel = GridFactory.newGridLayout();
 		searchPanel.setStyle("background-color: transparent");
 
-		topPanel.appendNorth(searchPanel);
+		topPanel.appendChild(searchPanel);
 		bSearch.setLabel("Search");
 
 		bSearch.addActionListener(new EventListener() {
@@ -628,18 +646,31 @@ public class WBrowser extends Browser implements IFormController,
 
 		North sNorth = new North();
 
+		
 		Vbox vbox = new Vbox();
 		vbox.appendChild(topPanel);
 		vbox.appendChild(bSearch);
 		vbox.setAlign("center");
+		vbox.setWidth("100%");
 		vbox.setStyle("background-color: transparent");
-
-
+		
+		Div div = new Div();
+		div.appendChild(vbox);
+		div.setWidth("100%");
+		div.setHeight("100%");
+		
 		sNorth.setFlex(true);
-		sNorth.appendChild(vbox);
+		sNorth.setCollapsible(true);
+		sNorth.setAutoscroll(true);
+		sNorth.appendChild(div);
+		sNorth.setTitle(" ");
 		sNorth.setStyle("background-color: transparent");
 		sNorth.setStyle("border: none");
 		searchTab.appendChild(sNorth);
+		
+		
+		
+		
 
 		detail.setWidth("100%");
 		detail.setHeight("100%");
@@ -650,8 +681,18 @@ public class WBrowser extends Browser implements IFormController,
 		detail.setFixedLayout(true);
 		dCenter.setFlex(true);
 		dCenter.setAutoscroll(true);
+		
+		footPanel.setHeight("100%");
+		footPanel.setWidth("100%");
+		footPanel.appendCenter(detail);
+		
+		Div dv = new Div();
+		div.appendChild(footPanel);
+		div.setHeight("100%");
+		div.setWidth("100%");
+		
 
-		searchTab.appendCenter(detail);
+		searchTab.appendCenter(footPanel);
 
 		Hbox hbox = new Hbox();
 
@@ -672,6 +713,7 @@ public class WBrowser extends Browser implements IFormController,
 
 		hbox.appendChild(bCancel);
 		hbox.appendChild(bOk);
+		hbox.setAlign("center");
 		searchTab.appendSouth(hbox);
 		searchTab.getSouth().setBorder("none");
 
