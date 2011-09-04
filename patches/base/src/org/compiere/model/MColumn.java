@@ -53,7 +53,7 @@ public class MColumn extends X_AD_Column
 	 */
 	public static I_AD_Column setAD_Column(Properties ctx ,I_AD_Column column , String trxName)
 	{
-		MTable table = MTable.get(ctx, column.getAD_Table_ID());
+		MTable table = (MTable) column.getAD_Table();
 		M_Element element =  new M_Element(ctx, column.getAD_Element_ID() , trxName);
 		if(element.getAD_Reference_ID() == DisplayType.ID)
 		{
@@ -63,6 +63,10 @@ public class MColumn extends X_AD_Column
 				column.setAD_Reference_ID(DisplayType.TableDir);
 			}
 		}
+
+		String entityType = column.getAD_Table().getEntityType();
+		if(!MTable.ENTITYTYPE_Dictionary.equals(entityType))
+			column.setEntityType(entityType);
 		
 		if(column.getColumnName() == null || column.getColumnName().length() <= 0)
 			column.setColumnName(element.getColumnName());	
@@ -81,7 +85,10 @@ public class MColumn extends X_AD_Column
 		if(column.getColumnName().equals("Name") || column.getColumnName().equals("Value"))
 		{	
 			column.setIsIdentifier(true);
-			column.setSeqNo(1);
+			int seqNo = DB.getSQLValue(trxName,"SELECT MAX(SeqNo) FROM AD_Column "+
+					"WHERE AD_Table_ID=?"+
+					" AND IsIdentifier='Y'",column.getAD_Table_ID());
+			column.setSeqNo(seqNo + 1);
 		}
 		return column;	
 	}
@@ -261,7 +268,10 @@ public class MColumn extends X_AD_Column
 	 */
 	protected boolean beforeSave (boolean newRecord)
 	{
-		setAD_Column(getCtx(), this, get_TrxName());
+		//set column default based in element when is a new column
+		if(newRecord)
+			setAD_Column(getCtx(), this, get_TrxName());
+
 		int displayType = getAD_Reference_ID();
 		if (DisplayType.isLOB(displayType))	//	LOBs are 0
 		{
