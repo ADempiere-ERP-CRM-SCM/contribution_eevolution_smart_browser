@@ -8,15 +8,15 @@
   <!-- set global properties for this build -->
   <property file="build.properties"/>
   <import file="${adempiere.trunk}/utils_dev/properties.xml"/>
-  <property name="src" location="extension/eevolution/smartbrowser/src/main/java"/>
-  <property name="patchesBase" location="patches/base/src"/>
-  <property name="patchesClient" location="patches/client/src"/>	
-  <property name="zkPatches" location="${basedir}/patches/zkwebui/WEB-INF/src"/>	
+  <!--property name="src" location="extension/eevolution/smartbrowser/src/main/java"/-->
+  <property name="patchesBase" location="../../base/src"/>
+  <property name="patchesClient" location="../../client/src"/>	
+  <property name="zkPatches" location="../../zkwebui/WEB-INF/src"/>	
   <property name="build" location="build"/>
   <property name="buildPatches" location="buildPatches"/>
   <property name="dist"  location="dist"/>
   <property name="zkBuildPatches" location="zkBuildPatches"/>		
-  <property name="zksrc" value="${basedir}/zkwebui/WEB-INF/src"/>
+  <property name="zksrc" value="../../zkwebui/WEB-INF/src"/>
   <property name="zkclasses" value="${basedir}/WEB-INF/classes"/>
 	
 	<path id="compile.class.path">
@@ -40,7 +40,7 @@
 	  </path>
 
 	<path id="lib.class.path">
-		<pathelement location="${basedir}/WEB-INF/classes"/>
+		<pathelement location="../../WEB-INF/classes"/>
 	    <pathelement location="${adempiere.trunk}/zkwebui/WEB-INF/classes"/>
 		<fileset dir="${adempiere.trunk}/zkwebui/WEB-INF/lib">
 		   <include name="*.jar"/>
@@ -69,7 +69,7 @@
   <target name="compile"
         description="compile the source " >
     <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}:${patchesBase}:${patchesClient}" destdir="${build}">
+    <javac srcdir="${patchesBase}:${patchesClient}" destdir="${build}">
       <classpath refid="lib.class.path"/>
       <include name="**/org/adempiere/model/*.java"/>  
       <include name="**/org/compiere/model/*.java"/>  	
@@ -94,20 +94,20 @@
 
   </target>
 	
-  <target name="zkdist" depends="init, dist, patchesDist ,zkcompile , zkPatchesDist "
+  <target name="zkdist" depends="init, patchesDist ,zkcompile , zkPatchesDist "
         description="generate the distribution" >
     <!-- Create the distribution directory -->
     <mkdir dir="${dist}/lib"/>
 
     <!-- Put everything in ${zkclasses} into the MyProject-${DSTAMP}.jar file -->
-    <jar jarfile="${dist}/lib/liberozkSB.jar" basedir="${basedir}" includes="WEB-INF/"/>
+    <!--jar jarfile="${dist}/lib/liberozkSB.jar" basedir="${basedir}" includes="WEB-INF/"/-->
 
     <!-- Create target Liberozk deployment -->
-    <mkdir dir="${env.ADEMPIERE_HOME}/zkpackages/liberozkSB/lib"/>
+    <!--mkdir dir="${env.ADEMPIERE_HOME}/zkpackages/liberozkSB/lib"/-->
 
     <!-- Transfer liberozkHR.jar -->
-    <copy file="${dist}/lib/liberozkSB.jar" todir="${env.ADEMPIERE_HOME}/zkpackages/liberozkSB/lib"/>
-    <copy file="${dist}/lib/liberozkSB.jar" todir="${adempiere.trunk}/zkpackages/"/>  	
+    <!--copy file="${dist}/lib/liberozkSB.jar" todir="${env.ADEMPIERE_HOME}/zkpackages/liberozkSB/lib"/-->
+    <!--copy file="${dist}/lib/liberozkSB.jar" todir="${adempiere.trunk}/zkpackages/"/-->  	
   </target>	
 	
 	
@@ -143,7 +143,10 @@
 	        description="compile the source " >
     <javac debug="false" srcdir="${patchesBase}:${patchesClient}" destdir="${buildPatches}">
       <include name="**/org/compiere/model/*.java"/>
+   	  <include name="**/org/compiere/images/*"/>
       <include name="**/org/eevolution/model/*.java"/>
+      <include name="**/org/eevolution/form/*.java"/>
+      <include name="**/org/eevolution/process/*.java"/>
       <include name="**/org/adempiere/model/*.java"/>
       <include name="**/org/compiere/apps/*.java"/>	
       <include name="**/org/compiere/apps/search/*.java"/>		
@@ -156,8 +159,10 @@
 	 	
 		 <javac debug="false" srcdir="${zkPatches}" destdir="${zkBuildPatches}">
 			  <classpath refid="lib.class.path"/>
-		 	  <include name="**/org/eevolution/form/*.java"/>
+		 	  <include name="**/org/adempiere/webui/apps/*.java"/>
 		 	  <include name="**/org/adempiere/webui/desktop/*.java"/>
+		 	  <include name="**/org/eevolution/form/*.java"/>
+		 	  
 		 </javac>
 	 </target>  	
 	
