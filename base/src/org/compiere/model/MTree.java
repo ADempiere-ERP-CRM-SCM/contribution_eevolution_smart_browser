@@ -1,5 +1,5 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                        *
+ * Product: Adempiere ERP & CRM Smart Business Solution                       *
  * Copyright (C) 1999-2006 ComPiere, Inc. All Rights Reserved.                *
  * This program is free software; you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
@@ -520,10 +520,7 @@ public class MTree extends MTree_Base
 					else if (X_AD_Menu.ACTION_Form.equals(actionColor))
 						access = role.getFormAccess(AD_Form_ID);
 					else if (X_AD_Menu.ACTION_SmartBrowse.equals(actionColor))
-					{	
 						access = role.getBrowseAccess(AD_Browse_ID);
-						access = true;
-					}	
 					else if (X_AD_Menu.ACTION_WorkFlow.equals(actionColor))
 						access = role.getWorkflowAccess(AD_Workflow_ID);
 					else if (X_AD_Menu.ACTION_Task.equals(actionColor))

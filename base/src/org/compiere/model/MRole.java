@@ -17,6 +17,7 @@
 package org.compiere.model;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,8 +30,10 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 
+import org.adempiere.exceptions.AdempiereException;
 import org.compiere.util.CCache;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
@@ -48,6 +51,7 @@ import org.compiere.util.Trace;
  *  @author Jorg Janke
  *  @author Karsten Thiemann FR [ 1782412 ]
  *  @author Carlos Ruiz - globalqss - FR [ 1846929 ] - implement ASP
+ *  @contributor KittiU - FR [ 3062553 ] - Duplicated action in DocAction list for Multiple Role Users
  *  @version $Id: MRole.java,v 1.5 2006/08/09 16:38:47 jjanke Exp $
  */
 public final class MRole extends X_AD_Role
@@ -55,8 +59,7 @@ public final class MRole extends X_AD_Role
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 8472593143421441965L;
-
+	private static final long serialVersionUID = 3684323160980498188L;
 
 	/**
 	 * 	Get Default (Client) Role
@@ -142,6 +145,8 @@ public final class MRole extends X_AD_Role
 	 */
 	public static MRole get (Properties ctx, int AD_Role_ID)
 	{
+		return get(ctx, AD_Role_ID, Env.getAD_User_ID(ctx), false); // metas-2009_0021_AP1_G94 - we need to use this method because we need to load/reload all accesses
+		/* metas-2009_0021_AP1_G94
 		String key = String.valueOf(AD_Role_ID);
 		MRole role = (MRole)s_roles.get (key);
 		String trxName = null;
@@ -155,6 +160,7 @@ public final class MRole extends X_AD_Role
 			}
 		}
 		return role;
+		/**/ // metas-2009_0021_AP1_G94
 	}	//	get
 	
 	/**
@@ -677,6 +683,7 @@ public final class MRole extends X_AD_Role
 			m_formAccess = null;
 			m_browseAccess = null;
 		}
+		loadIncludedRoles(reload); // Load/Reload included roles - metas-2009_0021_AP1_G94
 	}	//	loadAccess
 
 	/**
@@ -1027,7 +1034,7 @@ public final class MRole extends X_AD_Role
 			set.add(String.valueOf(m_orgAccess[i].AD_Client_ID));
 		//
 		StringBuffer sb = new StringBuffer();
-		Iterator it = set.iterator();
+		Iterator<String> it = set.iterator();
 		boolean oneOnly = true;
 		while (it.hasNext())
 		{
@@ -1107,7 +1114,7 @@ public final class MRole extends X_AD_Role
 		}
 		//
 		StringBuffer sb = new StringBuffer();
-		Iterator it = set.iterator();
+		Iterator<String> it = set.iterator();
 		boolean oneOnly = true;
 		while (it.hasNext())
 		{
@@ -1519,9 +1526,23 @@ public final class MRole extends X_AD_Role
 			{
 				DB.close(rs, pstmt);
 			}
+			//
 			log.fine("#" + m_windowAccess.size());
+			mergeIncludedAccess("m_windowAccess"); // Load included accesses - metas-2009_0021_AP1_G94
 		}	//	reload
-		Boolean retValue = (Boolean)m_windowAccess.get(new Integer(AD_Window_ID));
+		Boolean retValue = m_windowAccess.get(AD_Window_ID);
+		//
+		// Check included roles - metas-2009_0021_AP1_G94
+		if (retValue == null)
+		{
+			for (MRole includedRole : getIncludedRoles(false))
+			{
+				retValue = includedRole.getWindowAccess(AD_Window_ID);
+				if (retValue != null)
+					break;
+			}
+		}
+		//
 	//	log.fine("getWindowAccess - AD_Window_ID=" + AD_Window_ID + " - " + retValue);
 		return retValue;
 	}	//	getWindowAccess
@@ -1590,8 +1611,10 @@ public final class MRole extends X_AD_Role
 			{
 				DB.close(rs, pstmt);
 			}
+			mergeIncludedAccess("m_processAccess"); // Load included accesses - metas-2009_0021_AP1_G94
 		}	//	reload
-		return (Boolean)m_processAccess.get(new Integer(AD_Process_ID));
+		Boolean retValue = m_processAccess.get(AD_Process_ID);
+		return retValue;
 	}	//	getProcessAccess
 
 	/**
@@ -1655,8 +1678,10 @@ public final class MRole extends X_AD_Role
 			{
 				DB.close(rs, pstmt);
 			}
+			mergeIncludedAccess("m_taskAccess"); // Load included accesses - metas-2009_0021_AP1_G94
 		}	//	reload
-		return (Boolean)m_taskAccess.get(new Integer(AD_Task_ID));
+		Boolean retValue = m_taskAccess.get(AD_Task_ID);
+		return retValue;
 	}	//	getTaskAccess
 
 	/**
@@ -1721,10 +1746,24 @@ public final class MRole extends X_AD_Role
 			{
 				DB.close(rs, pstmt);
 			}
+			mergeIncludedAccess("m_formAccess"); // Load included accesses - metas-2009_0021_AP1_G94
 		}	//	reload
-		return (Boolean)m_formAccess.get(new Integer(AD_Form_ID));
+		Boolean retValue = m_formAccess.get(AD_Form_ID);
+		//
+		// Check included roles - metas-2009_0021_AP1_G94
+		if (retValue == null)
+		{
+			for (MRole includedRole : getIncludedRoles(false))
+			{
+				retValue = includedRole.getFormAccess(AD_Form_ID);
+				if (retValue != null)
+					break;
+			}
+		}
+		//
+		return retValue;
 	}	//	getTaskAccess
-	
+
 	/**
 	 * 	Get Browse Access
 	 *	@param AD_Browse_ID browse
@@ -1788,10 +1827,21 @@ public final class MRole extends X_AD_Role
 				DB.close(rs, pstmt);
 			}
 		}	//	reload
-		return (Boolean)m_browseAccess.get(new Integer(AD_Browse_ID));
+		
+		Boolean retValue = m_browseAccess.get(AD_Browse_ID);
+		//
+		if (retValue == null)
+		{
+			for (MRole includedRole : getIncludedRoles(false))
+			{
+				retValue = includedRole.getBrowseAccess(AD_Browse_ID);
+				if (retValue != null)
+					break;
+			}
+		}
+		//
+		return retValue;
 	}	//	getBrowseAccess
-
-
 	/**
 	 * 	Get Workflow Access
 	 *	@param AD_Workflow_ID workflow
@@ -1853,8 +1903,10 @@ public final class MRole extends X_AD_Role
 			{
 				DB.close(rs, pstmt);
 			}
+			mergeIncludedAccess("m_workflowAccess"); // Load included accesses - metas-2009_0021_AP1_G94
 		}	//	reload
-		return (Boolean)m_workflowAccess.get(new Integer(AD_Workflow_ID));
+		Boolean retValue = m_workflowAccess.get(AD_Workflow_ID);
+		return retValue;
 	}	//	getTaskAccess
 
 	
@@ -2066,9 +2118,15 @@ public final class MRole extends X_AD_Role
 			where.append(")");
 		}
 		else if (excludes.size() == 1)
-			where.append(whereColumnName).append("<>").append(excludes.get(0));
+		{
+			where.append("(" + whereColumnName + " IS NULL OR ");
+			where.append(whereColumnName).append("<>").append(excludes.get(0)).append(")");
+		}
 		else if (excludes.size() > 1)
 		{
+			//@Trifon - MySQL
+			// (C_PaymentTerm_ID IS NULL OR 
+			where.append("(").append(whereColumnName).append(" IS NULL OR "); // @Trifon
 			where.append(whereColumnName).append(" NOT IN (");
 			for (int ii = 0; ii < excludes.size(); ii++)
 			{
@@ -2077,6 +2135,7 @@ public final class MRole extends X_AD_Role
 				where.append(excludes.get(ii));
 			}
 			where.append(")");
+			where.append(")"); // @Trifon
 		}
 		log.finest(where.toString());
 		return where.toString();
@@ -2367,7 +2426,10 @@ public final class MRole extends X_AD_Role
 			{
 				if (sb.length() > 0)
 					sb.append(" AND ");
+				// @Trifon - MySQL // (C_PaymentTerm_ID IS NULL OR 
+				sb.append("(").append(keyColumnName).append(" IS NULL OR "); // @Trifon
 				sb.append(keyColumnName).append(lockedIDs);
+				sb.append(")"); // @Trifon
 			}
 		}
 		//
@@ -2464,11 +2526,6 @@ public final class MRole extends X_AD_Role
 
 	}	//	OrgAccess
 	
-	
-	//// remove this
-	
-	private List<MRole> m_includedRoles = null;
-	
 	/**
 	 * Checks the access rights of the given role/client for the given document actions.
 	 * @param clientId
@@ -2497,7 +2554,7 @@ public final class MRole extends X_AD_Role
 			params.add(options[i]);
 		}
 		//
-		final String sql = "SELECT rl.Value FROM AD_Document_Action_Access a"
+		final String sql = "SELECT DISTINCT rl.Value FROM AD_Document_Action_Access a"
 				+ " INNER JOIN AD_Ref_List rl ON (rl.AD_Reference_ID=135 and rl.AD_Ref_List_ID=a.AD_Ref_List_ID)"
 				+ " WHERE a.IsActive='Y' AND a.AD_Client_ID=? AND a.C_DocType_ID=?" // #1,2
 					+ " AND rl.Value IN ("+sql_values+")"
@@ -2529,6 +2586,431 @@ public final class MRole extends X_AD_Role
 		//
 		int newMaxIndex = validOptions.size(); 
 		return newMaxIndex;
+	}
+
+	/** List of included roles. Do not access directly */
+	private List<MRole> m_includedRoles = null;
+	
+	/**
+	 * Include role permissions 
+	 * @param role
+	 * @param seqNo
+	 * @see metas-2009_0021_AP1_G94
+	 */
+	private void includeRole(MRole role, int seqNo)
+	{
+		if (this.getAD_Role_ID() == role.getAD_Role_ID())
+		{
+			return;
+		}
+		if (this.m_includedRoles == null)
+		{
+			m_includedRoles = new ArrayList<MRole>();
+		}
+		for (MRole r : this.m_includedRoles)
+		{
+			if (r.getAD_Role_ID() == role.getAD_Role_ID())
+			{
+				return;
+			}
+		}
+		
+		System.out.println("Include "+role);
+		this.m_includedRoles.add(role);
+		role.setParentRole(this);
+		role.m_includedSeqNo = seqNo;
+	}
+
+	/**
+	 * 
+	 * @return unmodifiable list of included roles
+	 * @see metas-2009_0021_AP1_G94
+	 */
+	public List<MRole> getIncludedRoles(boolean recursive)
+	{
+		if (!recursive)
+		{
+			List<MRole> list = this.m_includedRoles;
+			if (list == null)
+				list = new ArrayList<MRole>();
+			return Collections.unmodifiableList(list);
+		}
+		else
+		{
+			List<MRole> list = new ArrayList<MRole>();
+			if (m_includedRoles != null)
+			{
+				for (MRole role : m_includedRoles)
+				{
+					list.add(role);
+					list.addAll(role.getIncludedRoles(true));
+				}
+			}
+			return list;
+		}
+	}
+	
+	/**
+	 * Load all included roles (direct inclusion or from user substitution)
+	 * @param reload
+	 * @see metas-2009_0021_AP1_G94
+	 */
+	private void loadIncludedRoles(boolean reload)
+	{
+		loadChildRoles(reload);
+		loadSubstitutedRoles(reload);
+		//
+		if (this.m_parent == null)
+		{
+			mergeAccesses(reload);
+		}
+	}
+	
+	private void mergeAccesses(boolean reload)
+	{
+		OrgAccess[] orgAccess = new OrgAccess[]{};
+		MTableAccess[] tableAccess = new MTableAccess[]{};
+		MColumnAccess[] columnAccess = new MColumnAccess[]{};
+		MRecordAccess[] recordAccess = new MRecordAccess[]{};
+		MRecordAccess[] recordDependentAccess = new MRecordAccess[]{};
+		//
+		MRole last_role = null;
+		for (MRole role : getIncludedRoles(false))
+		{
+			boolean override = false;
+			//
+			// If roles have same SeqNo, then, the second role will override permissions from first role
+			if (last_role != null && last_role.m_includedSeqNo >= 0
+					&& role.m_includedSeqNo >= 0
+					&& last_role.m_includedSeqNo == role.m_includedSeqNo)
+			{
+				override = true;
+			}
+			//
+			role.loadAccess(reload);
+			role.mergeAccesses(reload);
+			orgAccess = mergeAccess(orgAccess, role.m_orgAccess, override);
+			tableAccess = mergeAccess(tableAccess, role.m_tableAccess, override);
+			columnAccess = mergeAccess(columnAccess, role.m_columnAccess, override);
+			recordAccess = mergeAccess(recordAccess, role.m_recordAccess, override);
+			recordDependentAccess = mergeAccess(recordDependentAccess, role.m_recordDependentAccess, override);
+			//
+			last_role = role;
+		}
+		//
+		// Merge permissions inside this role
+		this.m_orgAccess = mergeAccess(this.m_orgAccess, orgAccess, false);
+		this.m_tableAccess = mergeAccess(this.m_tableAccess, tableAccess, false);
+		this.m_columnAccess = mergeAccess(this.m_columnAccess, columnAccess, false);
+		this.m_recordAccess = mergeAccess(this.m_recordAccess, recordAccess, false);
+		this.m_recordDependentAccess = mergeAccess(this.m_recordDependentAccess, recordDependentAccess, false);
+	}
+	
+	/**
+	 * Load Child Roles
+	 * @param reload
+	 * @see metas-2009_0021_AP1_G94
+	 */
+	private void loadChildRoles(boolean reload)
+	{
+		m_includedRoles = null; // reset included roles
+		final int AD_User_ID = getAD_User_ID();
+		if (AD_User_ID < 0)
+		{
+			//throw new IllegalStateException("AD_User_ID is not set");
+			return ;
+		}
+		//
+		final String whereClause = X_AD_Role_Included.COLUMNNAME_AD_Role_ID+"=?";
+		List<X_AD_Role_Included> list = new Query(getCtx(), X_AD_Role_Included.Table_Name, whereClause, get_TrxName())
+		.setParameters(new Object[]{getAD_Role_ID()})
+		.setOnlyActiveRecords(true)
+		.setOrderBy(
+				X_AD_Role_Included.COLUMNNAME_SeqNo
+				+","+X_AD_Role_Included.COLUMNNAME_Included_Role_ID)
+				.list();
+		for (X_AD_Role_Included includedRole : list)
+		{
+			MRole role = MRole.get(getCtx(), includedRole.getIncluded_Role_ID());
+			includeRole(role, includedRole.getSeqNo());
+		}
+	}
+
+	/**
+	 * Load substituted roles
+	 * @param reload
+	 * @see metas-2009_0021_AP1_G94
+	 */
+	private void loadSubstitutedRoles(boolean reload)
+	{
+		if (this.m_parent != null)
+		{
+			// load only if this is logged role (no parent roles) 
+			return;
+		}
+		//
+		final int AD_User_ID = getAD_User_ID();
+		if (AD_User_ID < 0)
+		{
+			//throw new IllegalStateException("AD_User_ID is not set");
+			return;
+		}
+		//
+		final String whereClause = "EXISTS ("
+		+" SELECT 1 FROM AD_User_Roles ur"
+		+" INNER JOIN AD_User_Substitute us ON (us.AD_User_ID=ur.AD_User_ID)"
+		+" WHERE ur.AD_Role_ID=AD_Role.AD_Role_ID AND ur.IsActive='Y' AND us.IsActive='Y'"
+		+" AND (us.ValidFrom IS NULL OR us.ValidFrom <= getdate())"
+		+" AND (us.ValidTo IS NULL OR us.ValidTo >= getdate())"
+		+" AND us.Substitute_ID=?)";
+		List<MRole> list = new Query(getCtx(), Table_Name, whereClause, get_TrxName())
+		.setParameters(new Object[]{AD_User_ID})
+		.setClient_ID()
+		.setOrderBy(COLUMNNAME_AD_Role_ID)
+		.list();
+		for (MRole role : list)
+		{
+			includeRole(role, -1);
+		}
+	}
+	
+	/** Parent Role */
+	private MRole m_parent = null;
+	
+	/**
+	 * Set parent role. This method is called when this role is included in a parent role.
+	 * @param parent
+	 * @see metas-2009_0021_AP1_G94
+	 */
+	private void setParentRole(MRole parent)
+	{
+		this.setAD_User_ID(parent.getAD_User_ID());
+		this.m_parent = parent;
+	}
+	
+	private int m_includedSeqNo = -1;
+	
+	/**
+	 * Merge permissions access 
+	 * @param <T>
+	 * @param array1
+	 * @param array2
+	 * @return array of merged values
+	 * @see metas-2009_0021_AP1_G94
+	 */
+	@SuppressWarnings("unchecked")
+	private static final <T> T[] mergeAccess(T[] array1, T[] array2, boolean override)
+	{
+		if (array1 == null)
+		{
+			System.out.println("null !!!");
+		}
+		List<T> list = new ArrayList<T>();
+		for (T po : array1)
+		{
+			list.add(po);
+		}
+		for (T o2 : array2)
+		{
+			boolean found = false;
+			for (int i = 0; i < array1.length; i++)
+			{
+				final T o1 = array1[i];
+				if (o1 instanceof OrgAccess)
+				{
+					final OrgAccess oa1 = (OrgAccess)o1;
+					final OrgAccess oa2 = (OrgAccess)o2;
+					found = oa1.equals(oa2);
+					if (found && override)
+					{
+						// stronger permissions first
+						if (!oa2.readOnly)
+							oa1.readOnly = false;
+					}
+				}
+				else if (o1 instanceof MTableAccess)
+				{
+					final MTableAccess ta1 = (MTableAccess)o1;
+					final MTableAccess ta2 = (MTableAccess)o2;
+					found = ta1.getAD_Table_ID() == ta2.getAD_Table_ID();
+					if (found && override)
+					{
+						// stronger permissions first
+						if (ta2.isCanReport())
+							ta1.setIsCanExport(true);
+						if (ta2.isCanReport())
+							ta1.setIsCanReport(true);
+						if (!ta2.isReadOnly())
+							ta1.setIsCanExport(false);
+						if (!ta2.isExclude())
+							ta1.setIsExclude(false);
+					}
+				}
+				else if (o1 instanceof MColumnAccess)
+				{
+					final MColumnAccess ca1 = (MColumnAccess)o1;
+					final MColumnAccess ca2 = (MColumnAccess)o2;
+					found = ca1.getAD_Column_ID() == ca2.getAD_Column_ID();
+					if (found && override)
+					{
+						// stronger permissions first
+						if (!ca2.isReadOnly())
+							ca1.setIsReadOnly(false);
+						if (!ca2.isExclude())
+							ca1.setIsExclude(false);
+					}
+				}
+				else if (o1 instanceof MRecordAccess)
+				{
+					final MRecordAccess ra1 = (MRecordAccess)o1;
+					final MRecordAccess ra2 = (MRecordAccess)o2;
+					found = ra1.getAD_Table_ID() == ra2.getAD_Table_ID()
+							&& ra1.getRecord_ID() == ra2.getRecord_ID();
+					if (found && override)
+					{
+						// stronger permissions first
+						if(!ra2.isReadOnly())
+							ra1.setIsReadOnly(false);
+						if (!ra2.isDependentEntities())
+							ra1.setIsDependentEntities(false);
+						if (!ra2.isExclude())
+							ra1.setIsExclude(false);
+					}
+				}
+				else
+				{
+					throw new AdempiereException("Not supported objects - "+o1+", "+o2);
+				}
+				//
+				if (found)
+				{
+					break;
+				}
+			} // end for array1
+			if (!found)
+			{
+				//System.out.println("add "+o2);
+				list.add(o2);
+			}
+		}
+		T[] arr = (T[]) Array.newInstance(array1.getClass().getComponentType(), list.size());
+		return list.toArray(arr);
+	}
+	
+	private static final HashMap<Integer,Boolean> mergeAccess(
+			HashMap<Integer,Boolean> map1, HashMap<Integer,Boolean> map2,
+			boolean override)
+	{
+		final HashMap<Integer,Boolean> map = new HashMap<Integer, Boolean>();
+		if (map1 != null)
+		{
+			map.putAll(map1);
+		}
+		//
+		for (final Entry<Integer, Boolean> e : map2.entrySet())
+		{
+			final Integer key = e.getKey();
+			final Boolean b2 = e.getValue();
+			if (b2 == null)
+			{
+				continue;
+			}
+			final Boolean b1 = map.get(key);
+			if (b1 == null)
+			{
+				map.put(key, b2);
+			}
+			else
+			{
+				if (override && b2 == true && b1 == false)
+				{
+					map.put(key, b2);
+				}
+			}
+		}
+		//
+		return map;
+	}
+	
+	private void mergeIncludedAccess(String varname)
+	{
+		HashMap<Integer,Boolean> includedAccess = new HashMap<Integer, Boolean>();
+		MRole last_role = null;
+		for (MRole role : getIncludedRoles(false))
+		{
+			boolean override = false;
+			//
+			// If roles have same SeqNo, then, the second role will override permissions from first role
+			if (last_role != null && last_role.m_includedSeqNo >= 0
+					&& role.m_includedSeqNo >= 0
+					&& last_role.m_includedSeqNo == role.m_includedSeqNo)
+			{
+				override = true;
+			}
+			includedAccess = mergeAccess(includedAccess, role.getAccessMap(varname), override);
+			last_role = role;
+		}
+		setAccessMap(varname, mergeAccess(getAccessMap(varname), includedAccess, false));
+	}
+	
+	private HashMap<Integer, Boolean> getAccessMap(String varname)
+	{
+		if ("m_windowAccess".equals(varname))
+		{
+			getWindowAccess(-1);
+			return m_windowAccess;
+		}
+		else if ("m_processAccess".equals(varname))
+		{
+			getProcessAccess(-1);
+			return m_processAccess;
+		}
+		else if ("m_taskAccess".equals(varname))
+		{
+			getTaskAccess(-1);
+			return m_taskAccess;
+		}
+		else if ("m_workflowAccess".equals(varname))
+		{
+			getWorkflowAccess(-1);
+			return m_workflowAccess;
+		}
+		else if ("m_formAccess".equals(varname))
+		{
+			getFormAccess(-1);
+			return m_formAccess;
+		}
+		else
+		{
+			throw new IllegalArgumentException("varname not supported - "+varname);
+		}
+	}
+	private void setAccessMap(String varname, HashMap<Integer, Boolean> map)
+	{
+		if ("m_windowAccess".equals(varname))
+		{
+			m_windowAccess = map;
+		}
+		else if ("m_processAccess".equals(varname))
+		{
+			m_processAccess = map;
+		}
+		else if ("m_taskAccess".equals(varname))
+		{
+			m_taskAccess = map;
+		}
+		else if ("m_workflowAccess".equals(varname))
+		{
+			m_workflowAccess = map;
+		}
+		else if ("m_formAccess".equals(varname))
+		{
+			m_formAccess = map;
+		}
+		else
+		{
+			throw new IllegalArgumentException("varname not supported - "+varname);
+		}
 	}
 	
 	/**
@@ -2568,34 +3050,4 @@ public final class MRole extends X_AD_Role
 		whereClause.insert(0, roleColumnSQL+" IN (").append(")");
 		return whereClause.toString();
 	}
-	
-	/**
-	 * 
-	 * @return unmodifiable list of included roles
-	 * @see metas-2009_0021_AP1_G94
-	 */
-	public List<MRole> getIncludedRoles(boolean recursive)
-	{
-		if (!recursive)
-		{
-			List<MRole> list = this.m_includedRoles;
-			if (list == null)
-				list = new ArrayList<MRole>();
-			return Collections.unmodifiableList(list);
-		}
-		else
-		{
-			List<MRole> list = new ArrayList<MRole>();
-			if (m_includedRoles != null)
-			{
-				for (MRole role : m_includedRoles)
-				{
-					list.add(role);
-					list.addAll(role.getIncludedRoles(true));
-				}
-			}
-			return list;
-		}
-	}
-	
 }	//	MRole

@@ -82,12 +82,10 @@ public abstract class AbstractDesktop extends AbstractUIPart implements IDesktop
         {
         	openTask(menu.getAD_Task_ID());
         }
-        //BEGIN AJC E-EVOLUTION 22 NOV 2010
         else if(menu.getAction().equals("S"))
         {
         	openSmartBrowser((Integer)menu.get_Value("AD_Browse_ID"));
         }
-        //END AJC E-EVOLUTION 22 NOV 2010
         else
         {
             throw new ApplicationException("Menu Action not yet implemented: " + menu.getAction());

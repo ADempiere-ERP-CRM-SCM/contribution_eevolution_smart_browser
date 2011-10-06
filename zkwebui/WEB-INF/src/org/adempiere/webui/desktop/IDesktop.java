@@ -137,11 +137,9 @@ public interface IDesktop extends UIPart {
      * @return ADWindow
      */
 	public ADForm openForm(int formId);
-	
-	//BEGIN AJC E-EVOLUTION 22 NOV 2010
-	public void openSmartBrowser(int AD_Browse_ID);
-	//END AJC E-EVOLUTION 22 NOV 2010
 
+	public void openSmartBrowser(int AD_Browse_ID);
+	
 	/**
 	 *
 	 * @param windowId
